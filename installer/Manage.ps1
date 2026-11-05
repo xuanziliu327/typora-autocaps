@@ -3,9 +3,11 @@ param(
   [ValidateSet('Install', 'Uninstall', 'Restore')][string]$Action = 'Install',
   [string]$FrameworkPath,
   [string]$BackupPath,
-  [switch]$PurgeSettings
+  [switch]$PurgeSettings,
+  [switch]$AutoEnable
 )
 $ErrorActionPreference = 'Stop'
+. (Join-Path $PSScriptRoot 'Common.ps1')
 $id = 'typora-autocaps'
 
 function FullPath([string]$path) { return [IO.Path]::GetFullPath($path).TrimEnd('\', '/') }
@@ -54,12 +56,20 @@ try {
     $sourceManifest = Join-Path $packageRoot 'manifest.json'
     if (!(Test-Path -LiteralPath (Join-Path $packageRoot 'main.js')) -or !(Test-Path -LiteralPath $sourceManifest)) { throw 'Incomplete package: main.js or manifest.json missing. Extract the ZIP first.' }
     if ((Get-Content -LiteralPath $sourceManifest -Raw | ConvertFrom-Json).id -ne $id) { throw 'Unexpected package identity.' }
+    $enablePlans = @()
+    if ($AutoEnable) {
+      foreach ($path in @('settings', 'settings\data', 'settings\plugins.json', 'settings\data\typora-autocaps.json')) { AssertNoLink (Join-Path $FrameworkPath $path) }
+      $enablePlans = @(Get-AutoCapsEnablePlans $FrameworkPath)
+    }
     $backup = BackupPlugin
+    if ($AutoEnable) { Save-AutoCapsConfigBackup $enablePlans $backupRoot }
     New-Item -ItemType Directory -Path $target -Force | Out-Null
     try {
       # Only these two owned files are replaced. Settings and unrelated files stay intact.
       foreach ($file in @('main.js', 'manifest.json')) { Copy-Item -LiteralPath (Join-Path $packageRoot $file) -Destination (Join-Path $target $file) -Force }
+      foreach ($plan in $enablePlans) { Write-AutoCapsText $plan.Path $plan.Content }
     } catch {
+      if ($enablePlans.Count) { Restore-AutoCapsConfigPlans $enablePlans }
       if ($backup) { foreach ($file in @('main.js', 'manifest.json')) { Copy-Item -LiteralPath (Join-Path $backup $file) -Destination (Join-Path $target $file) -Force } }
       else {
         AssertChild $target $plugins
@@ -69,7 +79,8 @@ try {
       throw
     }
     Write-Host "Installed: $target"
-    Write-Host 'Restart Typora > Ctrl+. > Installed Plugins > enable Typora AutoCaps.'
+    if ($AutoEnable) { Write-Host 'AutoCaps enabled for startup. Fully restart Typora; no manual plugin activation needed.' }
+    else { Write-Host 'Restart Typora > Ctrl+. > Installed Plugins > enable Typora AutoCaps.' }
   } elseif ($Action -eq 'Uninstall') {
     if (Test-Path -LiteralPath $target) {
       $backup = BackupPlugin
@@ -99,3 +110,4 @@ try {
   Write-Host "AutoCaps: $($_.Exception.Message)" -ForegroundColor Red
   exit 1
 }
+exit 0

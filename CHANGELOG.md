@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.1.1 — 2026-11-05 (prerelease)
+
+- Added two prominent Windows ZIP root entries: install the framework, then install/enable AutoCaps.
+- Framework setup detects Typora, downloads a pinned official ZIP with SHA-256 verification, backs up program HTML, installs the standard startup hook and requests UAC only when required.
+- AutoCaps setup merges host/plugin settings to enable loading on every normal Typora startup. Installed files live in the user-data directory, independent of the extracted download folder.
+- Added idempotent setup, configuration backups, installation rollback, guarded framework HTML restoration and failure propagation.
+- The typing runtime is unchanged from the verified 0.1.0 bundle. Added installation and startup integration evidence.
+
 ## 0.1.0 — 2026-11-05 (prerelease)
 
 - Initial standalone Typora Community Plugin extension; Windows / Typora 1.14.x target.

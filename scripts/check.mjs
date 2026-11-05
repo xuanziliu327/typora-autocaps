@@ -10,6 +10,13 @@ async function checkDirectory(dir) {
   }
 }
 for (const dir of ['src', 'scripts', 'test', 'tools']) await checkDirectory(dir);
+for (const dir of ['.', 'installer']) {
+  for (const file of await readdir(dir)) {
+    if (!file.endsWith('.cmd')) continue;
+    const contents = await readFile(`${dir}/${file}`, 'utf8');
+    if (contents.startsWith('\ufeff') || /(?<!\r)\n/u.test(contents)) throw new Error(`${dir}/${file}: Windows launchers require UTF-8 without BOM and CRLF line endings`);
+  }
+}
 if (process.platform === 'win32') {
   const command = `$ErrorActionPreference='Stop'; Get-ChildItem scripts,installer,test -Recurse -Filter '*.ps1' | ForEach-Object { $t=$null; $e=$null; $null=[System.Management.Automation.Language.Parser]::ParseFile($_.FullName,[ref]$t,[ref]$e); if($e.Count){ $e | ForEach-Object { Write-Error $_ }; exit 1 } }`;
   const result = spawnSync('powershell.exe', ['-NoProfile', '-Command', command], { stdio: 'inherit' });

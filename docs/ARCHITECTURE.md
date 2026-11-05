@@ -47,6 +47,14 @@ References supporting the implementation:
 
 `src/main.js` uses the framework's Plugin, PluginSettings, SettingTab, status bar, commands and cleanup hooks. Preferences are written by the framework after a debounce (about one second); AutoCaps adds no persistence loop. Disabling/unloading removes listeners and clears transient state.
 
+## Two-entry Windows installation (0.1.1)
+
+The Windows release root contains two numbered CMD launchers. The first invokes `installer/Setup.ps1 -Action Framework`: it detects Typora, waits for it to close, downloads a fixed official framework ZIP with a pinned SHA-256, deploys only loader/core JS/CSS/JSON into the Typora user-data directory and adds the framework's documented loader tag to a backed-up `resources/window.html`. It reuses a compatible installation, never runs a downloaded installer/EXE and requests UAC only if the program HTML is protected. All changes have snapshots and failed deployment rolls back applied files. `RestoreFramework.cmd` rejects restoring HTML if a later Typora update changed it.
+
+The second entry uses `Manage.ps1 -AutoEnable`: it copies the two runtime files and merges only the AutoCaps activation flag into the host's `settings/plugins.json`, plus `enabled=true` in AutoCaps' preferences. Other plugin registrations and independent feature options are preserved. Existing user-data directory junctions remain supported. No startup service, scheduled task, global hook or persistent dependency on the extracted folder is introduced: Typora imports the host and then the enabled plugin on every normal start. Intentionally disabling the plugin or using separate vault-specific framework settings still follows the host's configuration rules. A Typora program update that overwrites the HTML hook can require rerunning entry 1.
+
+`installer/framework.json` locks the upstream version, URL and GitHub asset SHA-256. Updating that pin is an explicit maintenance change. Download/extraction exists only in the installer; the typing runtime remains unchanged and offline.
+
 ## Native editor inspection and transaction choice
 
 The locally installed Typora 1.14.10 `resources/appsrc/window/frame.js` was read, not modified or redistributed. Findings:

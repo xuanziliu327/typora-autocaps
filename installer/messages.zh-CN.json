@@ -1,0 +1,17 @@
+{
+  "closeTypora": "请先保存笔记并彻底退出所有 Typora 窗口，再按 Enter 继续。脚本不会强制结束 Typora。",
+  "notFound": "未自动找到 Typora。请将 Typora.exe 或其安装文件夹的完整路径粘贴到这里",
+  "choose": "检测到多个 Typora，请输入序号",
+  "detected": "检测到 Typora：",
+  "download": "正在下载官方插件框架 ZIP（不下载或执行安装 EXE）：",
+  "offline": "下载失败时，可手动下载该官方 ZIP，放在解压包根目录并命名为 typora-community-plugin.zip，再重跑第 1 步。",
+  "admin": "Typora 程序目录需要管理员权限。Windows 将显示权限提示；如同意，脚本会继续安装。",
+  "frameworkReady": "框架已安装，启动加载钩子已就绪。现在运行根目录的 2-安装AutoCaps.cmd。",
+  "pluginReady": "AutoCaps 已安装并启用。现在彻底关闭并重新打开 Typora，即可看到 AutoCaps: ON。以后每次启动 Typora 都会自动加载，无需再运行此文件夹中的脚本。",
+  "extraction": "运行文件已复制到 Typora 用户数据目录；安装成功后可以删除下载的解压文件夹。",
+  "needFramework": "尚未检测到可启动的插件框架。请先运行根目录的 1-安装框架.cmd。",
+  "backup": "备份位置：",
+  "alreadyInstalled": "已检测到兼容的框架，将保留现有框架文件和设置。",
+  "failed": "安装未完成：",
+  "restartAfterUpdate": "Typora 本体升级后如果加载入口被覆盖，重新运行第 1 步即可修复。"
+}

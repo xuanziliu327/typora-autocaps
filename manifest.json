@@ -3,7 +3,7 @@
   "name": "Typora AutoCaps",
   "description": "Local English sentence and pronoun I capitalization with math and code protection.",
   "author": "Typora AutoCaps contributors",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "minAppVersion": "1.14.0",
   "minCoreVersion": "2.10.86",
   "platforms": ["win32"]

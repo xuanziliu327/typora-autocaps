@@ -4,7 +4,7 @@ Local, lightweight English sentence and pronoun **I** capitalization for Typora,
 
 [中文](README.md) · [Testing](docs/TESTING.md) · [Architecture](docs/ARCHITECTURE.md) · [Changelog](CHANGELOG.md)
 
-**0.1.0 is a prerelease. Automated tests and programmatic integration tests in Typora 1.14.10 pass, including math/prose transitions, native undo/redo and restart persistence. Physical keyboard, shortcut and IME candidate-window acceptance remains pending. Try the manual checklist in a disposable document first.**
+**0.1.1 is a prerelease. Extract the Windows ZIP, run its two root setup entries and restart Typora: AutoCaps starts enabled automatically. Automated and Typora 1.14.10 programmatic integration tests pass; physical keyboard, shortcut and IME acceptance remains pending.**
 
 | Typed | Result |
 | --- | --- |
@@ -28,25 +28,24 @@ Typora has no official stable plugin API. The host framework has its own overhea
 
 ## Install
 
-### Framework — once
+Download **`typora-autocaps-0.1.1-windows.zip`** from this project's Releases and extract it completely. Choose the Windows installer ZIP; GitHub's Source code/source ZIP is for developers and requires a build.
 
-1. Save your work and quit all Typora windows.
-2. Download and extract `typora-community-plugin.zip` from the framework's [Releases](https://github.com/typora-community-plugin/typora-community-plugin/releases).
-3. **Back up Typora's `resources/window.html` somewhere safe.** Locate the actual installation directory; do not assume a fixed path. The framework installer changes this file.
-4. Follow the [official Windows instructions](https://github.com/typora-community-plugin/typora-community-plugin/blob/main/docs/en-us/user-guide/1a-installation.md) and run `install-windows.ps1`. Follow its path and permission prompts.
-5. Start Typora, verify that **Ctrl+.** opens plugin settings, then quit it.
+The extracted root has two prominent entries:
 
-If framework installation fails, quit Typora and restore your backup to its original location **only for the same Typora version**. After a Typora upgrade, follow the framework upgrade instructions instead of restoring old HTML. AutoCaps does not download or run a framework installer.
+- **`1-安装框架.cmd`** — install the framework once.
+- **`2-安装AutoCaps.cmd`** — install and enable AutoCaps once.
 
-### AutoCaps
+Save your work, quit all Typora windows and run those two entries in order. Then restart Typora: **AutoCaps: ON** appears automatically. No plugin checkbox or further visit to the download folder is needed. After successful installation, the extracted folder can be moved or deleted.
 
-1. Download `typora-autocaps-0.1.0-windows.zip` from this project's Releases and **extract the entire archive**.
-2. Quit Typora and double-click `installer/Install.cmd`.
-3. Restart Typora → **Ctrl+. → Installed Plugins → enable Typora AutoCaps**.
+Entry 1 detects the installation path, downloads the pinned official framework ZIP, verifies SHA-256, deploys JS/CSS/JSON into the Typora user-data directory and adds the standard loader to the backed-up `window.html`. It requests Windows UAC consent only when the application directory requires elevation. Compatible existing installations are retained. Downloaded installer scripts and executables are not run.
 
-The installer detects `%USERPROFILE%\.typora\community-plugins` or `%APPDATA%\Typora\plugins`, or asks for a custom directory containing `loader.js`. It changes no application binaries or unrelated settings. No Node.js/Python/config editing is needed. Its PowerShell execution-policy option applies only to the launched process.
+Entry 2 copies AutoCaps and merges the framework/plugin configuration to enable startup loading. Other plugin settings and independent sentence/pronoun preferences are preserved. The installer remembers your chosen Typora path; it asks only if it cannot select an installation automatically.
 
-Manual/offline option: extract `main.js` and `manifest.json` from `plugin.zip` directly into `<framework>/plugins/typora-autocaps/`, then enable it. There must be no extra nested directory. AutoCaps is **not yet listed in the marketplace**; no ZIP-import UI is claimed.
+No Node.js, Python or environment/config editing is needed. The execution-policy option applies only to the launched PowerShell process. Both entries may be rerun safely. If a Typora upgrade replaces the loader hook, rerun entry 1; do not restore old HTML over a newer Typora version.
+
+For offline setup, download the official [2.10.86 framework ZIP](https://github.com/typora-community-plugin/typora-community-plugin/releases/download/2.10.86/typora-community-plugin.zip), place it in the extracted root as `typora-community-plugin.zip`, and run entry 1. Its pinned SHA-256 is still verified.
+
+`plugin.zip` retains the standard standalone format for existing framework users and future marketplace distribution. Manual copying still requires manual activation; ordinary users should use the two root entries. AutoCaps is not yet listed in the marketplace.
 
 ## Controls
 
@@ -59,9 +58,11 @@ Click the status label, use **Ctrl+Alt+U** in the editor, or run **Typora AutoCa
 
 ## Update, restore, remove
 
-Quit Typora and run the new release's `Install.cmd`. Only the two plugin files are replaced; preferences are retained. Previous files are backed up to `<framework>/autocaps-backups/<timestamp>/` with the path printed by the installer. Run `Restore.cmd` and supply that path to roll back.
+Quit Typora and run the new release's root entry 2. It installs and enables AutoCaps while retaining independent feature choices and unrelated settings. Advanced users wanting to retain OFF can use `installer/Install.cmd`. Files and configuration backups are under `<framework>/autocaps-backups/`. Use `installer/Restore.cmd` to restore a plugin backup.
 
-Run `Uninstall.cmd` or use the framework's Uninstall button. For complete cleanup, remove AutoCaps' `<framework>/settings/data/typora-autocaps.json` (or use `Manage.ps1 -Action Uninstall -PurgeSettings`), any vault-specific `.typora/data/typora-autocaps.json`, and unwanted AutoCaps backups. Reset its custom shortcut through Hotkeys; do not delete shared configuration files. Uninstalling the host itself is a separate operation covered by its official documentation.
+Program HTML backups are under `<Typora user data>/autocaps-framework-backups/`. `installer/RestoreFramework.cmd` restores the saved HTML (run as administrator if needed), rejecting HTML changed by a later Typora upgrade. Framework files remain for recovery or separate removal.
+
+Run `installer/Uninstall.cmd` or use the framework's Uninstall button. For complete cleanup, remove AutoCaps' `<framework>/settings/data/typora-autocaps.json` (or use `Manage.ps1 -Action Uninstall -PurgeSettings`), any vault-specific `.typora/data/typora-autocaps.json`, and unwanted AutoCaps backups. Reset its custom shortcut through Hotkeys; do not delete shared configuration files. Uninstalling the host itself is a separate operation covered by its official documentation.
 
 ## Limitations
 
@@ -83,7 +84,7 @@ pnpm run check
 pnpm run build
 ```
 
-On Windows: `powershell -NoProfile -ExecutionPolicy Bypass -File test/installer.integration.ps1`, then `pnpm run pack` and `powershell -NoProfile -ExecutionPolicy Bypass -File scripts/verify-package.ps1`. Outputs: `dist/plugin.zip`, `dist/typora-autocaps-0.1.0-windows.zip`, `dist/typora-autocaps-0.1.0-source.zip`, `dist/SHA256SUMS.txt`.
+On Windows: `powershell -NoProfile -ExecutionPolicy Bypass -File test/installer.integration.ps1`, then `pnpm run pack` and `powershell -NoProfile -ExecutionPolicy Bypass -File scripts/verify-package.ps1`. Outputs: `dist/plugin.zip`, `dist/typora-autocaps-0.1.1-windows.zip`, `dist/typora-autocaps-0.1.1-source.zip`, `dist/SHA256SUMS.txt`.
 
 The runtime bundle is **15,270 bytes (14.91 KiB)** with no runtime npm packages. `jsdom` is the only direct development dependency. A reproducible isolated editor integration probe is documented in the source archive's `tools/native-probe/README.md`. CI tests pushes/PRs and creates a **draft**, prerelease GitHub Release for version tags. See [RELEASING.md](docs/RELEASING.md) for repository identity and marketplace registration; no fictitious GitHub owner is embedded in the manifest.
 

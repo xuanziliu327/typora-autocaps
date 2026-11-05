@@ -1,0 +1,32 @@
+{
+  "date": "2026-11-05",
+  "platform": "Windows",
+  "typoraVersion": "1.14.10",
+  "coreVersion": "2.10.86",
+  "autoCapsVersion": "0.1.1",
+  "frameworkSource": "Official GitHub release; downloaded by entry 1",
+  "frameworkArchiveSha256": "43993658f6558d3606c75767778d64138d703f7ef6e83689bbe56b3599105757",
+  "testMethod": "Real installer scripts against a copied Typora and separate user-data directory; scoped test process stub leaves the existing user Typora running. Only the recorder plugin was manually registered; AutoCaps startup activation was written by entry 2.",
+  "runs": [
+    {
+      "version": "0.1.1",
+      "coreVersion": "2.10.86",
+      "instanceLoaded": true,
+      "enabled": true,
+      "status": "AutoCaps: ON",
+      "originalExtractedFolderExists": false,
+      "pluginLivesInUserData": true
+    },
+    {
+      "version": "0.1.1",
+      "coreVersion": "2.10.86",
+      "instanceLoaded": true,
+      "enabled": true,
+      "status": "AutoCaps: ON",
+      "originalExtractedFolderExists": false,
+      "pluginLivesInUserData": true
+    }
+  ],
+  "originalTyporaHtmlUnchanged": true,
+  "uacPrompt": "Non-elevated/protected-file detection tested automatically; actual UAC consent UI not automated."
+}
