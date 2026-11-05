@@ -4,7 +4,8 @@ param(
   [string]$FrameworkPath,
   [string]$BackupPath,
   [switch]$PurgeSettings,
-  [switch]$AutoEnable
+  [switch]$AutoEnable,
+  [switch]$NativeAppearance
 )
 $ErrorActionPreference = 'Stop'
 . (Join-Path $PSScriptRoot 'Common.ps1')
@@ -58,8 +59,8 @@ try {
     if ((Get-Content -LiteralPath $sourceManifest -Raw | ConvertFrom-Json).id -ne $id) { throw 'Unexpected package identity.' }
     $enablePlans = @()
     if ($AutoEnable) {
-      foreach ($path in @('settings', 'settings\data', 'settings\plugins.json', 'settings\data\typora-autocaps.json')) { AssertNoLink (Join-Path $FrameworkPath $path) }
-      $enablePlans = @(Get-AutoCapsEnablePlans $FrameworkPath)
+      foreach ($path in @('settings', 'settings\data', 'settings\plugins.json', 'settings\data\typora-autocaps.json', 'settings\core.json')) { AssertNoLink (Join-Path $FrameworkPath $path) }
+      $enablePlans = @(Get-AutoCapsEnablePlans $FrameworkPath -NativeAppearance:$NativeAppearance)
     }
     $backup = BackupPlugin
     if ($AutoEnable) { Save-AutoCapsConfigBackup $enablePlans $backupRoot }

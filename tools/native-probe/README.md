@@ -32,6 +32,11 @@ actual Typora API, DOM renderer and undo stack. Framework settings use real disk
 storage. This validates integration and DOM transitions; it does not replace
 physical keyboard, IME candidates, shortcut delivery or timing acceptance.
 
+The fixture uses the installer's native appearance settings. `appearance.pass`
+checks that the ribbon and workspace DOM are absent, the native editor starts at
+the left edge and the original sidebar header remains available. The input and
+undo cases run with the workspace disabled.
+
 Tests end with a disposable sample in the copied app. No private notes are loaded.
 Stop its recorded process before removing the fixture. Resource directories are
 junctions to the original install: never edit shared resources or recursively

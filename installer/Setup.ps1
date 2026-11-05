@@ -150,6 +150,7 @@ try {
   if (!$UserDataPath) { $UserDataPath = Join-Path $env:APPDATA 'Typora' }
   $UserDataPath = Normalize-SetupPath $UserDataPath
   $statePath = Join-Path $UserDataPath 'autocaps-installer.json'
+  $stateWasPresent = Test-Path -LiteralPath $statePath
   $state = Read-AutoCapsJson $statePath ([pscustomobject]@{tool='Typora AutoCaps'})
   if ($state.tool -ne 'Typora AutoCaps') { throw 'Unknown installer state file; not overwriting.' }
   $homePath = Find-TyporaHome $TyporaPath $state.typoraHome
@@ -167,7 +168,10 @@ try {
   }
   if ($Action -eq 'Plugin') {
     if (!(Test-CompatibleFramework $framework) -or $html -notmatch $loaderPattern) { throw $messages.needFramework }
-    & (Join-Path $PSScriptRoot 'Manage.ps1') -Action Install -FrameworkPath $framework -AutoEnable
+    # Migrate our 0.1.1 installations as well. Existing independently installed
+    # frameworks keep their appearance preferences unless explicitly opted in.
+    $nativeAppearance = $stateWasPresent -and (!$state.PSObject.Properties['nativeAppearance'] -or [bool]$state.nativeAppearance)
+    & (Join-Path $PSScriptRoot 'Manage.ps1') -Action Install -FrameworkPath $framework -AutoEnable -NativeAppearance:$nativeAppearance
     if ($LASTEXITCODE -ne 0) { throw 'AutoCaps installation failed; see the preceding error. Startup was not enabled.' }
     Say $messages.pluginReady
     Say $messages.extraction
@@ -185,7 +189,13 @@ try {
     }
   }
   $compatible = Test-CompatibleFramework $framework
+  $nativeAppearance = !(Test-Path -LiteralPath (Join-Path $framework 'loader.js')) -or ($stateWasPresent -and (!$state.PSObject.Properties['nativeAppearance'] -or [bool]$state.nativeAppearance))
   $changes = [Collections.Generic.List[object]]::new()
+  if ($nativeAppearance) {
+    Assert-SetupTarget (Join-Path $framework 'settings\core.json') $framework
+    $appearancePlan = Get-AutoCapsNativeAppearancePlan $framework
+    $changes.Add((New-SetupChange $appearancePlan.Path ([Text.UTF8Encoding]::new($false).GetBytes($appearancePlan.Content))))
+  }
   if (!$compatible) {
     $stage = Get-FrameworkStage $FrameworkZip $UserDataPath
     foreach ($file in Get-ChildItem -LiteralPath $stage -File -Recurse) {
@@ -211,7 +221,7 @@ try {
     $updatedHtml = [regex]::Replace($html, '(?is)(</body>\s*</html>\s*)$', '<script src="typora://app/userData/plugins/loader.js" type="module"></script>$1')
     $changes.Add((New-SetupChange $htmlPath ([Text.UTF8Encoding]::new($false).GetBytes($updatedHtml))))
   }
-  $newState = [pscustomobject]@{tool='Typora AutoCaps';typoraHome=$homePath;frameworkPath=$framework;htmlBackup=$htmlBackup;htmlInstalledHash='';frameworkVersion=$(if ($compatible) { (Read-AutoCapsJson (Join-Path $framework 'loader.json') $null).coreVersion } else { $pin.version })}
+  $newState = [pscustomobject]@{tool='Typora AutoCaps';typoraHome=$homePath;frameworkPath=$framework;htmlBackup=$htmlBackup;htmlInstalledHash='';nativeAppearance=$nativeAppearance;frameworkVersion=$(if ($compatible) { (Read-AutoCapsJson (Join-Path $framework 'loader.json') $null).coreVersion } else { $pin.version })}
   $applied = [Collections.Generic.List[object]]::new()
   $backupIndex = [Collections.Generic.List[object]]::new()
   try {

@@ -28,7 +28,25 @@ function Write-AutoCapsText([string]$Path, [string]$Text) {
   }
 }
 
-function Get-AutoCapsEnablePlans([string]$FrameworkPath) {
+function Get-AutoCapsNativeAppearancePlan([string]$FrameworkPath) {
+  $corePath = Join-Path $FrameworkPath 'settings\core.json'
+  $core = Read-AutoCapsJson $corePath ([pscustomobject]@{version=2;settings=[pscustomobject]@{}})
+  if (!$core.PSObject.Properties['settings'] -or $core.settings -isnot [pscustomobject]) { throw "Invalid framework preferences, not overwriting: $corePath" }
+  $enabledKey = 'internalPlugin.enabledPlugins'
+  if (!$core.settings.PSObject.Properties[$enabledKey]) { $core.settings | Add-Member -NotePropertyName $enabledKey -NotePropertyValue ([pscustomobject]@{}) }
+  if ($core.settings.$enabledKey -isnot [pscustomobject]) { throw "Invalid internal plugin preferences, not overwriting: $corePath" }
+  # Use the host's own settings: no injected CSS or replacement sidebar.
+  $core.settings | Add-Member -NotePropertyName showRibbon -NotePropertyValue $false -Force
+  $core.settings.$enabledKey | Add-Member -NotePropertyName 'internal.workspace' -NotePropertyValue $false -Force
+  [pscustomobject]@{
+    Path = $corePath
+    Content = ($core | ConvertTo-Json -Depth 30) + [Environment]::NewLine
+    Existed = (Test-Path -LiteralPath $corePath)
+    Original = $(if (Test-Path -LiteralPath $corePath) { [IO.File]::ReadAllBytes($corePath) } else { $null })
+  }
+}
+
+function Get-AutoCapsEnablePlans([string]$FrameworkPath, [switch]$NativeAppearance) {
   $pluginsPath = Join-Path $FrameworkPath 'settings\plugins.json'
   $dataPath = Join-Path $FrameworkPath 'settings\data\typora-autocaps.json'
   $plugins = Read-AutoCapsJson $pluginsPath ([pscustomobject]@{})
@@ -44,6 +62,7 @@ function Get-AutoCapsEnablePlans([string]$FrameworkPath) {
       Original = $(if (Test-Path -LiteralPath $entry.Path) { [IO.File]::ReadAllBytes($entry.Path) } else { $null })
     }
   }
+  if ($NativeAppearance) { Get-AutoCapsNativeAppearancePlan $FrameworkPath }
 }
 
 function Save-AutoCapsConfigBackup($Plans, [string]$BackupRoot) {

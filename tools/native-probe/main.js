@@ -33,6 +33,25 @@ export default class NativeProbe extends Plugin {
       initialPreference: plugin.settings.get('enabled'),
       cases: [],
     };
+    report.appearance = {
+      showRibbon: this.app.settings.get('showRibbon'),
+      workspaceEnabled: this.app.settings.get('internalPlugin.enabledPlugins')['internal.workspace'],
+      ribbonElement: !!document.querySelector('.typ-ribbon'),
+      ribbonClass: document.body.classList.contains('typ-ribbon--enable'),
+      workspaceElement: !!document.querySelector('.typ-workspace-root'),
+      contentLeft: document.querySelector('content').getBoundingClientRect().left,
+    };
+    report.appearance.pass = report.appearance.showRibbon === false
+      && report.appearance.workspaceEnabled === false
+      && !report.appearance.ribbonElement && !report.appearance.ribbonClass
+      && !report.appearance.workspaceElement && report.appearance.contentLeft === 0;
+    editor.library.showSidebar();
+    await delay(100);
+    const header = document.querySelector('.info-panel-tab-wrapper');
+    report.appearance.nativeSidebarHeaderVisible = !!header && getComputedStyle(header).display !== 'none';
+    report.appearance.pass &&= report.appearance.nativeSidebarHeaderVisible;
+    editor.library.hideSidebar();
+    await delay(100);
     this.save(report);
     plugin.settings.set('enabled', true);
     // Enable rendering only in this disposable profile's in-memory options.
@@ -142,7 +161,7 @@ export default class NativeProbe extends Plugin {
     report.persistedSettings = JSON.parse(this.fs.readFileSync(plugin.dataPath, 'utf8'));
     report.done = true;
     report.pass = report.cases.every(c => c.pass)
-      && ['undo', 'mixed', 'math', 'blockMath', 'code', 'sourceMode', 'disabled'].every(key => report[key].pass)
+      && ['appearance', 'undo', 'mixed', 'math', 'blockMath', 'code', 'sourceMode', 'disabled'].every(key => report[key].pass)
       && report.persistedSettings.settings.enabled === false;
     this.save(report);
   }

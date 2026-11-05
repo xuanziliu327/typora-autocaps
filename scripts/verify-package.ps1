@@ -15,6 +15,8 @@ Set-Content -LiteralPath (Join-Path $framework '2.10.86\core.css') -Value '/* fi
 $profile = Join-Path $temp 'fixture-profile'
 # Setup expects the framework in the active Typora user-data directory.
 New-Item -ItemType Directory -Path $profile | Out-Null
+# Simulate an earlier AutoCaps-managed setup, exercising layout migration too.
+Set-Content -LiteralPath (Join-Path $profile 'autocaps-installer.json') -Value '{"tool":"Typora AutoCaps"}' -Encoding ASCII
 Move-Item -LiteralPath $framework -Destination (Join-Path $profile 'plugins')
 $framework = Join-Path $profile 'plugins'
 $typora = Join-Path $temp 'fixture-Typora'
@@ -37,4 +39,6 @@ foreach ($prefix in @('1-', '2-')) {
 }
 $enabled = Get-Content -LiteralPath (Join-Path $framework 'settings\plugins.json') -Raw | ConvertFrom-Json
 if ($enabled.'typora-autocaps' -ne $true) { throw 'Installed plugin is not enabled for startup.' }
-Write-Host 'PASS: two root entries, extracted setup, payload hashes and automatic startup registration.'
+$appearance = Get-Content -LiteralPath (Join-Path $framework 'settings\core.json') -Raw | ConvertFrom-Json
+if ($appearance.settings.showRibbon -ne $false -or $appearance.settings.'internalPlugin.enabledPlugins'.'internal.workspace' -ne $false) { throw 'Native appearance profile is missing.' }
+Write-Host 'PASS: two root entries, extracted setup, payload hashes, automatic startup and native appearance.'

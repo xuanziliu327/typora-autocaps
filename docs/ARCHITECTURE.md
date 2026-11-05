@@ -17,7 +17,7 @@ Investigation date: 2026-11-05. Upstream source was inspected locally at these c
 | Compatibility evidence | Loader rejects versions before 0.9.98; Windows/Linux installation documented; not an AutoCaps compatibility guarantee | Upstream README reports Windows 10 testing on Typora 1.1.x–1.14.x; not an AutoCaps compatibility guarantee |
 | Runtime cost | Broad framework with many optional/default features | Broad framework with own editor services and observers; not a minimal injection shim |
 
-**Decision:** Community Plugin, for its independent packaging, lifecycle, status/settings UI and user-directory installation. Neither framework's total CPU/RAM was benchmarked, so this is not a claim that Community Plugin is universally lighter. A single AutoCaps bundle adds no library or DOM observer. Users can disable unwanted host core plugins/UI in its settings. The host's existing editor service uses a MutationObserver; AutoCaps does not subscribe to its high-frequency `edit` stream or add another observer.
+**Decision:** Community Plugin, for its independent packaging, lifecycle, status/settings UI and user-directory installation. Neither framework's total CPU/RAM was benchmarked, so this is not a claim that Community Plugin is universally lighter. A single AutoCaps bundle adds no library or DOM observer. Our installer disables the host ribbon and workspace for fresh installations, retaining the native layout; independently installed hosts keep their choices. The host's existing editor service uses a MutationObserver; AutoCaps does not subscribe to its high-frequency `edit` stream or add another observer.
 
 References supporting the implementation:
 
@@ -54,6 +54,12 @@ The Windows release root contains two numbered CMD launchers. The first invokes 
 The second entry uses `Manage.ps1 -AutoEnable`: it copies the two runtime files and merges only the AutoCaps activation flag into the host's `settings/plugins.json`, plus `enabled=true` in AutoCaps' preferences. Other plugin registrations and independent feature options are preserved. Existing user-data directory junctions remain supported. No startup service, scheduled task, global hook or persistent dependency on the extracted folder is introduced: Typora imports the host and then the enabled plugin on every normal start. Intentionally disabling the plugin or using separate vault-specific framework settings still follows the host's configuration rules. A Typora program update that overwrites the HTML hook can require rerunning entry 1.
 
 `installer/framework.json` locks the upstream version, URL and GitHub asset SHA-256. Updating that pin is an explicit maintenance change. Download/extraction exists only in the installer; the typing runtime remains unchanged and offline.
+
+### Native appearance correction (0.1.2)
+
+The host defaults to `showRibbon=true` and `internalPlugin.enabledPlugins["internal.workspace"]=true`. The former shifts content and replaces native sidebar tabs with a ribbon; the latter enables file tabs, split views and a sidedock control. AutoCaps needs neither. `Get-AutoCapsNativeAppearancePlan` merges only those two flags as false into `settings/core.json`, preserving the settings version, unrelated fields and other internal plugin flags. This disables the underlying features instead of hiding them with CSS. The AutoCaps status button and framework settings remain available.
+
+Fresh framework installs opt into this profile. Installer state from 0.1.1 identifies our earlier installations so entry 2 can migrate them without requiring entry 1 again. Frameworks already installed independently are recorded with `nativeAppearance=false` and keep their layout choices. Shared configuration is validated before deployment and backed up before writing; malformed settings fail without copying AutoCaps. Appearance is an installer policy, never a per-keystroke runtime operation. Vault-specific settings remain under user control.
 
 ## Native editor inspection and transaction choice
 

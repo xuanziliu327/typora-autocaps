@@ -1,0 +1,112 @@
+{
+  "date": "2026-11-05",
+  "platform": "Windows",
+  "typoraVersion": "1.14.10",
+  "coreVersion": "2.10.86",
+  "autoCapsVersion": "0.1.2",
+  "method": "Synthetic beforeinput + Chromium execCommand for unhandled characters; real Typora DOM/insertion/undo/framework/storage. No physical keyboard or IME acceptance.",
+  "initialStatus": "AutoCaps: ON",
+  "appearance": {
+    "showRibbon": false,
+    "workspaceEnabled": false,
+    "ribbonElement": false,
+    "ribbonClass": false,
+    "workspaceElement": false,
+    "contentLeft": 0,
+    "pass": true,
+    "nativeSidebarHeaderVisible": true
+  },
+  "cases": [
+    {
+      "input": "hello. how are you?",
+      "expected": "Hello. How are you?",
+      "actual": "Hello. How are you?",
+      "pass": true,
+      "status": "AutoCaps: ON"
+    },
+    {
+      "input": "are you okay? i am fine! that is good.",
+      "expected": "Are you okay? I am fine! That is good.",
+      "actual": "Are you okay? I am fine! That is good.",
+      "pass": true,
+      "status": "AutoCaps: ON"
+    },
+    {
+      "input": "iPhone iPad and i am inside.",
+      "expected": "iPhone iPad and I am inside.",
+      "actual": "iPhone iPad and I am inside.",
+      "pass": true,
+      "status": "AutoCaps: ON"
+    },
+    {
+      "input": "today i feel happy. i'm ready.",
+      "expected": "Today I feel happy. I'm ready.",
+      "actual": "Today I feel happy. I'm ready.",
+      "pass": true,
+      "status": "AutoCaps: ON"
+    },
+    {
+      "input": "https://example.com/i hello@example.com",
+      "expected": "https://example.com/i hello@example.com",
+      "actual": "https://example.com/i hello@example.com",
+      "pass": true,
+      "status": "AutoCaps: ON"
+    },
+    {
+      "input": "i think $f(x)=ax+b$ is interesting. it is linear.",
+      "expected": "I think $f(x)=ax+b$ is interesting. It is linear.",
+      "actual": "I think $f(x)=ax+b$ is interesting. It is linear.",
+      "pass": true,
+      "status": "AutoCaps: ON"
+    }
+  ],
+  "undo": {
+    "beforeUndo": "Hello. iPhone and I am fine?",
+    "afterUndo": "",
+    "afterRedo": "Hello. iPhone and I am fine?",
+    "undoCount": 7,
+    "pass": true
+  },
+  "mixed": {
+    "actual": "i think the function $f(x)=ax+b$ is interesting. It is linear.",
+    "pass": true
+  },
+  "math": {
+    "source": "f(x)=ax+b",
+    "pass": true
+  },
+  "blockMath": {
+    "actual": "$$\ni + f(x)=ax+b\n$$",
+    "hasProtectedDOM": true,
+    "pass": true
+  },
+  "code": {
+    "source": "const i = f(x)",
+    "pass": true
+  },
+  "sourceMode": {
+    "active": true,
+    "pass": true
+  },
+  "disabled": {
+    "actual": "hello i",
+    "status": "AutoCaps: OFF",
+    "pass": true
+  },
+  "restart": {
+    "initialStatus": "AutoCaps: OFF",
+    "initialPreference": false,
+    "appearance": {
+      "showRibbon": false,
+      "workspaceEnabled": false,
+      "ribbonElement": false,
+      "ribbonClass": false,
+      "workspaceElement": false,
+      "contentLeft": 0,
+      "pass": true,
+      "nativeSidebarHeaderVisible": true
+    },
+    "pass": true
+  },
+  "pass": true
+}

@@ -34,12 +34,16 @@ Copy-Item -Path (Join-Path $root 'tools\native-probe\*') -Destination $probe
 $settings = Join-Path $plugins 'settings'
 New-Item -ItemType Directory -Path $settings -Force | Out-Null
 Set-Content -LiteralPath (Join-Path $settings 'plugins.json') -Value '{"typora-autocaps":true,"autocaps-native-probe":true}' -Encoding ASCII
+# Match the two-entry installer's native appearance profile.
+Set-Content -LiteralPath (Join-Path $settings 'core.json') -Value '{"version":2,"settings":{"showRibbon":false,"internalPlugin.enabledPlugins":{"internal.workspace":false}}}' -Encoding ASCII
 $html = Join-Path $resources 'window.html'
 $markup = [IO.File]::ReadAllText($html)
 if (!$markup.Contains('</body></html>')) { throw 'Unknown window.html format. Fixture not launched.' }
 # The original installed HTML is never changed; retain an additional copy here.
 Copy-Item -LiteralPath $html -Destination ($html + '.original')
-$markup = $markup.Replace('</body></html>', '<script src="typora://app/userData/plugins/loader.js" type="module"></script></body></html>')
+if ($markup -notmatch 'typora://(?:app/)?userData/plugins/loader\.js') {
+  $markup = $markup.Replace('</body></html>', '<script src="typora://app/userData/plugins/loader.js" type="module"></script></body></html>')
+}
 [IO.File]::WriteAllText($html,$markup,[Text.UTF8Encoding]::new($false))
 $metadata = @{ app=$app; profile=$profile; report=(Join-Path $profile 'native-report.json') }
 $metadata | ConvertTo-Json | Set-Content -LiteralPath (Join-Path $fixture 'fixture.json') -Encoding UTF8

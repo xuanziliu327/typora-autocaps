@@ -4,7 +4,7 @@ Local, lightweight English sentence and pronoun **I** capitalization for Typora,
 
 [中文](README.md) · [Testing](docs/TESTING.md) · [Architecture](docs/ARCHITECTURE.md) · [Changelog](CHANGELOG.md)
 
-**0.1.1 is a prerelease. Extract the Windows ZIP, run its two root setup entries and restart Typora: AutoCaps starts enabled automatically. Automated and Typora 1.14.10 programmatic integration tests pass; physical keyboard, shortcut and IME acceptance remains pending.**
+**0.1.2 is a prerelease. Extract the Windows ZIP, run its two root setup entries and restart Typora: AutoCaps starts enabled automatically. Automated and Typora 1.14.10 programmatic integration tests pass; physical keyboard, shortcut and IME acceptance remains pending.**
 
 | Typed | Result |
 | --- | --- |
@@ -20,6 +20,7 @@ Local, lightweight English sentence and pronoun **I** capitalization for Typora,
 - Standalone `i` and straight/curly-apostrophe contractions. Tentative capitalization reverses as the current word becomes `iPhone`, `iPad`, a URL, email or identifier.
 - Skips inline/block math, inline/fenced code, HTML, links, source mode and unknown structures, including unfinished raw markup.
 - Status bar **AutoCaps: ON / OFF**, **Ctrl+Alt+U**, separate sentence/pronoun options, framework-managed preferences.
+- Fresh framework installations made by this package disable the extra ribbon and workspace, retaining Typora's native sidebar and editing layout.
 - No runtime npm dependencies, network calls, telemetry, background services, polling, global keyboard hooks or full-document scans.
 
 Target: **Windows 10/11, Typora 1.14.x, Typora Community Plugin 2.10.86+ compatible releases**. Local source inspection and programmatic editor integration used Typora 1.14.10/core 2.10.86. The target range is not a fully tested compatibility matrix. macOS, Linux and earlier Typora versions are not claimed as supported.
@@ -28,7 +29,7 @@ Typora has no official stable plugin API. The host framework has its own overhea
 
 ## Install
 
-Download **`typora-autocaps-0.1.1-windows.zip`** from this project's Releases and extract it completely. Choose the Windows installer ZIP; GitHub's Source code/source ZIP is for developers and requires a build.
+Download **`typora-autocaps-0.1.2-windows.zip`** from this project's Releases and extract it completely. Choose the Windows installer ZIP; GitHub's Source code/source ZIP is for developers and requires a build.
 
 The extracted root has two prominent entries:
 
@@ -40,6 +41,8 @@ Save your work, quit all Typora windows and run those two entries in order. Then
 Entry 1 detects the installation path, downloads the pinned official framework ZIP, verifies SHA-256, deploys JS/CSS/JSON into the Typora user-data directory and adds the standard loader to the backed-up `window.html`. It requests Windows UAC consent only when the application directory requires elevation. Compatible existing installations are retained. Downloaded installer scripts and executables are not run.
 
 Entry 2 copies AutoCaps and merges the framework/plugin configuration to enable startup loading. Other plugin settings and independent sentence/pronoun preferences are preserved. The installer remembers your chosen Typora path; it asks only if it cannot select an installation automatically.
+
+**Native appearance:** fresh installations use the host's own settings to disable its extra ribbon and multi-tab workspace. No theme changes or hiding CSS are injected. If the 0.1.1 two-entry installer added those controls, quit Typora and run the new entry 2 to repair the layout; `core.json` is backed up first. Independently installed frameworks retain their existing appearance choices.
 
 No Node.js, Python or environment/config editing is needed. The execution-policy option applies only to the launched PowerShell process. Both entries may be rerun safely. If a Typora upgrade replaces the loader hook, rerun entry 1; do not restore old HTML over a newer Typora version.
 
@@ -84,7 +87,7 @@ pnpm run check
 pnpm run build
 ```
 
-On Windows: `powershell -NoProfile -ExecutionPolicy Bypass -File test/installer.integration.ps1`, then `pnpm run pack` and `powershell -NoProfile -ExecutionPolicy Bypass -File scripts/verify-package.ps1`. Outputs: `dist/plugin.zip`, `dist/typora-autocaps-0.1.1-windows.zip`, `dist/typora-autocaps-0.1.1-source.zip`, `dist/SHA256SUMS.txt`.
+On Windows: `powershell -NoProfile -ExecutionPolicy Bypass -File test/installer.integration.ps1`, then `pnpm run pack` and `powershell -NoProfile -ExecutionPolicy Bypass -File scripts/verify-package.ps1`. Outputs: `dist/plugin.zip`, `dist/typora-autocaps-0.1.2-windows.zip`, `dist/typora-autocaps-0.1.2-source.zip`, `dist/SHA256SUMS.txt`.
 
 The runtime bundle is **15,270 bytes (14.91 KiB)** with no runtime npm packages. `jsdom` is the only direct development dependency. A reproducible isolated editor integration probe is documented in the source archive's `tools/native-probe/README.md`. CI tests pushes/PRs and creates a **draft**, prerelease GitHub Release for version tags. See [RELEASING.md](docs/RELEASING.md) for repository identity and marketplace registration; no fictitious GitHub owner is embedded in the manifest.
 

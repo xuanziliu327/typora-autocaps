@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtemp, mkdir, writeFile, readFile, cp, stat } from 'node:fs/promises';
+import { mkdtemp, mkdir, writeFile, readFile, cp, stat, rm, readdir } from 'node:fs/promises';
 import { createHash } from 'node:crypto';
 import { spawnSync } from 'node:child_process';
 import path from 'node:path';
@@ -52,6 +52,10 @@ test('entry 1 installs the host/hook; entry 2 enables automatic startup without 
   assert.equal((await readFile(f.htmlPath, 'utf8')).match(/userData\/plugins\/loader\.js/g).length, 1);
   const state = JSON.parse(await readFile(path.join(f.profile, 'autocaps-installer.json'), 'utf8'));
   assert.equal(await readFile(state.htmlBackup, 'utf8'), f.html);
+  assert.equal(state.nativeAppearance, true);
+  const appearance = JSON.parse(await readFile(path.join(f.framework, 'settings/core.json'), 'utf8'));
+  assert.equal(appearance.settings.showRibbon, false);
+  assert.equal(appearance.settings['internalPlugin.enabledPlugins']['internal.workspace'], false);
   await assert.rejects(stat(path.join(f.framework, 'install-windows.ps1'))); // downloaded installer is never deployed/run
   result = f.run('Plugin'); assert.equal(result.status, 0, result.stdout + result.stderr);
   const enabled = JSON.parse(await readFile(path.join(f.framework, 'settings/plugins.json'), 'utf8'));
@@ -91,6 +95,51 @@ test('corrupt activation config is rejected before copying plugin files', { skip
   await assert.rejects(stat(path.join(f.framework, 'plugins/typora-autocaps/main.js')));
   assert.equal(await readFile(path.join(f.framework, 'settings/plugins.json'), 'utf8'), 'not json');
 });
+test('upgrading an AutoCaps 0.1.1 setup restores native layout and backs up unrelated preferences', { skip: !windows }, async () => {
+  const f = await fixture(); assert.equal(f.run('Framework').status, 0);
+  const statePath = path.join(f.profile, 'autocaps-installer.json');
+  const state = JSON.parse(await readFile(statePath, 'utf8'));
+  delete state.nativeAppearance; // state written by the original two-entry installer
+  await writeFile(statePath, JSON.stringify(state));
+  const corePath = path.join(f.framework, 'settings/core.json');
+  const original = JSON.stringify({ version: 2, custom: '保留', settings: {
+    showRibbon: true, keepSearchResult: true, ribbonState: { 'core.outline': { visible: true } },
+    'internalPlugin.enabledPlugins': { 'internal.workspace': true, 'internal.metadata': true, 'future.plugin': true },
+  } });
+  await writeFile(corePath, original);
+  const result = f.run('Plugin'); assert.equal(result.status, 0, result.stdout + result.stderr);
+  const after = JSON.parse(await readFile(corePath, 'utf8'));
+  const expected = JSON.parse(original);
+  expected.settings.showRibbon = false;
+  expected.settings['internalPlugin.enabledPlugins']['internal.workspace'] = false;
+  assert.deepEqual(after, expected);
+  const backupRoot = path.join(f.framework, 'autocaps-backups');
+  const folder = (await readdir(backupRoot)).find(name => name.startsWith('config-'));
+  assert.equal(await readFile(path.join(backupRoot, folder, 'core.json'), 'utf8'), original);
+});
+test('an independently installed framework keeps its existing layout preferences', { skip: !windows }, async () => {
+  const f = await fixture(); assert.equal(f.run('Framework').status, 0);
+  await rm(path.join(f.profile, 'autocaps-installer.json'));
+  const corePath = path.join(f.framework, 'settings/core.json');
+  const existing = '{"version":2,"settings":{"showRibbon":true,"internalPlugin.enabledPlugins":{"internal.workspace":true}}}';
+  await writeFile(corePath, existing);
+  assert.equal(f.run('Framework').status, 0);
+  const state = JSON.parse(await readFile(path.join(f.profile, 'autocaps-installer.json'), 'utf8'));
+  assert.equal(state.nativeAppearance, false);
+  assert.equal(f.run('Plugin').status, 0);
+  assert.equal(await readFile(corePath, 'utf8'), existing);
+});
+for (const invalid of ['broken json', '{"version":2,"settings":{"internalPlugin.enabledPlugins":[]}}']) {
+  test(`invalid host appearance preferences are rejected before plugin copy: ${invalid}`, { skip: !windows }, async () => {
+    const f = await fixture(); assert.equal(f.run('Framework').status, 0);
+    const corePath = path.join(f.framework, 'settings/core.json');
+    await writeFile(corePath, invalid);
+    const result = f.run('Plugin'); assert.equal(result.status, 1, result.stdout + result.stderr);
+    assert.equal(await readFile(corePath, 'utf8'), invalid);
+    await assert.rejects(stat(path.join(f.framework, 'plugins/typora-autocaps/main.js')));
+    await assert.rejects(stat(path.join(f.framework, 'settings/plugins.json')));
+  });
+}
 test('bad archive hash leaves application HTML unchanged', { skip: !windows }, async () => {
   const f = await fixture(); await writeFile(f.archive, 'tampered');
   const result = f.run('Framework'); assert.equal(result.status, 1); assert.match(result.stdout, /SHA-256 mismatch/);

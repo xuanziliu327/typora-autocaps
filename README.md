@@ -4,7 +4,7 @@
 
 [English](README_EN.md) · [测试与验收](docs/TESTING.md) · [架构与调研](docs/ARCHITECTURE.md) · [更新记录](CHANGELOG.md)
 
-**0.1.1 为预发布版本。解压 Windows 安装包后，依次运行根目录的两个入口，再彻底重启 Typora，即可默认启用。自动化与 Typora 1.14.10 程序化集成测试已通过；真实键盘、快捷键与 IME 候选窗口的人工验收仍待完成。**
+**0.1.2 为预发布版本。解压 Windows 安装包后，依次运行根目录的两个入口，再彻底重启 Typora，即可默认启用。自动化与 Typora 1.14.10 程序化集成测试已通过；真实键盘、快捷键与 IME 候选窗口的人工验收仍待完成。**
 
 | 输入 | 输入过程中显示 |
 | --- | --- |
@@ -22,6 +22,7 @@
 - 当前词继续形成 `iPhone`、`iPad`、网址、邮箱、下划线标识符时，恢复插件暂时改过的首字母。
 - 跳过行内/块级数学、代码、HTML、链接、源码模式和未知编辑区域。未闭合的公式也采用保守保护。
 - 状态栏 `AutoCaps: ON / OFF`，一键切换；默认快捷键 `Ctrl+Alt+U`。
+- 通过本项目首次安装的框架默认关闭额外图标栏、多标签工作区，保留 Typora 原生侧栏与编辑布局。
 - 句首和代词规则可以分别关闭，偏好由框架保存。
 - 无运行时第三方包、网络请求、遥测、后台服务、轮询或全局键盘监听；仅处理当前小段落。
 
@@ -39,7 +40,7 @@
 
 ## 安装
 
-从本项目 GitHub Releases 下载 **`typora-autocaps-0.1.1-windows.zip`** 并完整解压。普通用户请选择 Windows 安装包；`Source code` / `source.zip` 是开发源码，需要自行构建。
+从本项目 GitHub Releases 下载 **`typora-autocaps-0.1.2-windows.zip`** 并完整解压。普通用户请选择 Windows 安装包；`Source code` / `source.zip` 是开发源码，需要自行构建。
 
 ```text
 解压后的根目录/
@@ -57,6 +58,8 @@
 4. 重新启动 Typora，底部出现 **AutoCaps: ON** 即完成。以后随 Typora 自动加载，不用再运行入口；安装成功后可以移走或删除解压文件夹。
 
 两个入口均可重复运行。已安装兼容框架时，第 1 步会保留它；以后更新 AutoCaps 通常只需再运行第 2 步。无需 Node.js、Python、环境变量设置或编辑配置文件。脚本使用的 PowerShell 执行策略仅对当前进程生效。
+
+**保持原生外观**：首次通过本安装包安装框架时，会用框架自身设置关闭左侧图标栏和多标签工作区，不更换主题或注入隐藏样式。使用 0.1.1 两入口安装后出现额外侧栏的用户，退出 Typora，再运行新版第 2 步即可修复，修改前会备份 `core.json`。独立安装过框架的用户保留其现有界面偏好。
 
 **找不到路径**：脚本会读取运行进程、注册表、PATH 和常见目录；无法唯一定位时显示选择或要求输入 `Typora.exe` 的路径。第二步会记住第一步选定的位置。
 
@@ -119,11 +122,11 @@ pnpm run pack
 powershell -NoProfile -ExecutionPolicy Bypass -File scripts/verify-package.ps1
 ```
 
-产物：`dist/plugin.zip`、`dist/typora-autocaps-0.1.1-windows.zip`、`dist/typora-autocaps-0.1.1-source.zip`、`dist/SHA256SUMS.txt`。核心 `main.js` 为 **15,270 字节（14.91 KiB）**，无运行时 npm 依赖；开发测试仅直接依赖 `jsdom`。框架不打进插件包，由第一个入口安装。
+产物：`dist/plugin.zip`、`dist/typora-autocaps-0.1.2-windows.zip`、`dist/typora-autocaps-0.1.2-source.zip`、`dist/SHA256SUMS.txt`。核心 `main.js` 为 **15,270 字节（14.91 KiB）**，无运行时 npm 依赖；开发测试仅直接依赖 `jsdom`。框架不打进插件包，由第一个入口安装。
 
 可复现的真实编辑器集成测试说明位于源码包 `tools/native-probe/README.md`，准备脚本只创建隔离的程序副本和新配置目录。
 
-GitHub Actions 在推送与 PR 上测试，在推送版本标签（如 `0.1.1`）时生成 **Draft Release**，供维护者实机验收后发布。仓库所属 GitHub 账号未指定，因此 manifest 未填写虚构的 `repo` / `authorUrl`；发布及市场登记的最后步骤见 [RELEASING.md](docs/RELEASING.md)。
+GitHub Actions 在推送与 PR 上测试，在推送版本标签（如 `0.1.2`）时生成 **Draft Release**，供维护者实机验收后发布。仓库所属 GitHub 账号未指定，因此 manifest 未填写虚构的 `repo` / `authorUrl`；发布及市场登记的最后步骤见 [RELEASING.md](docs/RELEASING.md)。
 
 ## 反馈
 
