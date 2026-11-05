@@ -10,7 +10,7 @@ export default class NativeProbe extends Plugin {
     if (!this.fs.existsSync(`${this.profile}/AUTOCAPS_TEST_PROFILE`)) {
       throw new Error('Native probe requires an isolated, marked test profile.');
     }
-    setTimeout(() => this.run().catch(error => this.save({
+    setTimeout(() => this.run().catch(error => this.save({ ...this.report,
       error: String(error), stack: error.stack,
     })), 1000);
   }
@@ -33,6 +33,7 @@ export default class NativeProbe extends Plugin {
       initialPreference: plugin.settings.get('enabled'),
       cases: [],
     };
+    this.report = report;
     report.appearance = {
       showRibbon: this.app.settings.get('showRibbon'),
       workspaceEnabled: this.app.settings.get('internalPlugin.enabledPlugins')['internal.workspace'],
@@ -119,6 +120,33 @@ export default class NativeProbe extends Plugin {
       };
       this.save(report);
     }
+    report.initialCaretCases = [];
+    for (const mode of ['empty-text-vs-paragraph', 'root-before-paragraph', 'root-after-paragraph']) {
+      await reset();
+      const paragraph = root.firstElementChild, selection = window.getSelection();
+      const range = document.createRange();
+      if (mode === 'empty-text-vs-paragraph') {
+        const empty = document.createTextNode(''); paragraph.prepend(empty);
+        range.setStart(empty, 0);
+      } else range.setStart(root, mode === 'root-before-paragraph' ? 0 : root.childNodes.length);
+      range.collapse(true); selection.removeAllRanges(); selection.addRange(range);
+      const target = new StaticRange({ startContainer: paragraph, startOffset: 0, endContainer: paragraph, endOffset: 0 });
+      const event = new InputEvent('beforeinput', { bubbles: true, cancelable: true, data: 'y', inputType: 'insertText' });
+      Object.defineProperty(event, 'getTargetRanges', { value: () => [target] });
+      root.dispatchEvent(event);
+      if (!event.defaultPrevented) {
+        // Model the unchanged lowercase browser insertion after a skipped first
+        // input. Re-anchor only this fallback so the old runtime's root-boundary
+        // failure does not prevent the rest of the controlled case from running.
+        caretAtEnd(paragraph);
+        editor.insertText('y');
+      }
+      await type('esterday i dreamed about a panda. it jumped.');
+      const actual = editor.getMarkdown().trim();
+      report.initialCaretCases.push({ mode, firstCharacterHandled: event.defaultPrevented, actual,
+        pass: event.defaultPrevented && actual === 'Yesterday I dreamed about a panda. It jumped.', status: status() });
+      this.save(report);
+    }
     for (const [input, expected] of [
       ['hello. how are you?', 'Hello. How are you?'],
       ['are you okay? i am fine! that is good.', 'Are you okay? I am fine! That is good.'],
@@ -181,6 +209,7 @@ export default class NativeProbe extends Plugin {
     report.persistedSettings = JSON.parse(this.fs.readFileSync(plugin.dataPath, 'utf8'));
     report.done = true;
     report.pass = report.cases.every(c => c.pass)
+      && report.initialCaretCases.every(c => c.pass)
       && ['firstParagraph', 'appearance', 'undo', 'mixed', 'math', 'blockMath', 'code', 'sourceMode', 'disabled'].every(key => report[key].pass)
       && report.persistedSettings.settings.enabled === false;
     this.save(report);

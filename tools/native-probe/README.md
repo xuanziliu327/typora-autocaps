@@ -42,6 +42,12 @@ it checks the very first character, compact dotted text and spaced sentences in
 one paragraph without Enter. It records `skipped=true` if a restarted fixture
 restored its previous nonempty document; use a new profile to exercise this case.
 
+`initialCaretCases` explicitly varies the first insertion's selection and target:
+empty text versus paragraph boundary, and root offsets before/after the empty
+paragraph. It verifies the first Y and the rest of the sentence without Enter.
+These are controlled DOM/target-range scenarios, not captured physical-keyboard
+events; earlier probes forcing identical boundaries could not detect this bug.
+
 Tests end with a disposable sample in the copied app. No private notes are loaded.
 Stop its recorded process before removing the fixture. Resource directories are
 junctions to the original install: never edit shared resources or recursively

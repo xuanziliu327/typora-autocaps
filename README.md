@@ -4,7 +4,7 @@
 
 [English](README_EN.md) · [测试与验收](docs/TESTING.md) · [架构与调研](docs/ARCHITECTURE.md) · [更新记录](CHANGELOG.md)
 
-**0.1.2 为预发布版本。解压 Windows 安装包后，依次运行根目录的两个入口，再彻底重启 Typora，即可默认启用。自动化与 Typora 1.14.10 程序化集成测试已通过；真实键盘、快捷键与 IME 候选窗口的人工验收仍待完成。**
+**0.1.3 为预发布版本。解压 Windows 安装包后，依次运行根目录的两个入口，再彻底重启 Typora，即可默认启用。自动化与 Typora 1.14.10 程序化集成测试已通过；真实键盘、快捷键与 IME 候选窗口的人工验收仍待完成。**
 
 | 输入 | 输入过程中显示 |
 | --- | --- |
@@ -40,7 +40,7 @@
 
 ## 安装
 
-从本项目 GitHub Releases 下载 **`typora-autocaps-0.1.2-windows.zip`** 并完整解压。普通用户请选择 Windows 安装包；`Source code` / `source.zip` 是开发源码，需要自行构建。
+从本项目 GitHub Releases 下载 **`typora-autocaps-0.1.3-windows.zip`** 并完整解压。普通用户请选择 Windows 安装包；`Source code` / `source.zip` 是开发源码，需要自行构建。
 
 ```text
 解压后的根目录/
@@ -70,6 +70,8 @@
 **手动安装**：`plugin.zip` 仍保留标准独立插件格式，供现有框架用户复制安装/市场分发。目前未上架市场。手动复制后须自行启用；推荐普通用户使用根目录两个入口。
 
 ## 使用
+
+**0.1.3 修复首字符漏大写**：若旧版需要先按 Enter，退出 Typora 后运行新版 `2-安装AutoCaps.cmd` 更新即可，无需重装框架。
 
 点击底部 **AutoCaps: ON / OFF**，或在正文中按 `Ctrl+Alt+U`。状态栏支持 Enter/空格键操作；框架命令面板（F1）也有 `Typora AutoCaps: Toggle`。
 
@@ -123,11 +125,11 @@ pnpm run pack
 powershell -NoProfile -ExecutionPolicy Bypass -File scripts/verify-package.ps1
 ```
 
-产物：`dist/plugin.zip`、`dist/typora-autocaps-0.1.2-windows.zip`、`dist/typora-autocaps-0.1.2-source.zip`、`dist/SHA256SUMS.txt`。核心 `main.js` 为 **15,270 字节（14.91 KiB）**，无运行时 npm 依赖；开发测试仅直接依赖 `jsdom`。框架不打进插件包，由第一个入口安装。
+产物：`dist/plugin.zip`、`dist/typora-autocaps-0.1.3-windows.zip`、`dist/typora-autocaps-0.1.3-source.zip`、`dist/SHA256SUMS.txt`。核心 `main.js` 为 **16,637 字节（16.25 KiB）**，无运行时 npm 依赖；开发测试仅直接依赖 `jsdom`。框架不打进插件包，由第一个入口安装。
 
 可复现的真实编辑器集成测试说明位于源码包 `tools/native-probe/README.md`，准备脚本只创建隔离的程序副本和新配置目录。
 
-GitHub Actions 在推送与 PR 上测试，在推送版本标签（如 `0.1.2`）时生成 **Draft Release**，供维护者实机验收后发布。仓库所属 GitHub 账号未指定，因此 manifest 未填写虚构的 `repo` / `authorUrl`；发布及市场登记的最后步骤见 [RELEASING.md](docs/RELEASING.md)。
+GitHub Actions 在推送与 PR 上测试，在推送版本标签（如 `0.1.3`）时生成 **Draft Release**，供维护者实机验收后发布。仓库所属 GitHub 账号未指定，因此 manifest 未填写虚构的 `repo` / `authorUrl`；发布及市场登记的最后步骤见 [RELEASING.md](docs/RELEASING.md)。
 
 ## 反馈
 

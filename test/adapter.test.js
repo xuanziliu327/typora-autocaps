@@ -30,6 +30,7 @@ function fixture(html = '<p></p>') {
   root.focus(); caret(root.querySelector('p') ?? root.firstChild);
   function event(type, data, extras = {}) {
     const ev = new dom.window.InputEvent(type, { bubbles: true, cancelable: true, inputType: 'insertText', data, ...extras });
+    if (extras.targetRanges) Object.defineProperty(ev, 'getTargetRanges', { value: () => extras.targetRanges });
     (extras.target ?? root).dispatchEvent(ev); return ev;
   }
   function type(text) {
@@ -50,6 +51,46 @@ test('pristine first paragraph capitalizes immediately without a prior Enter or 
   assert.equal(f.errors.length, 0, String(f.errors[0]?.stack));
   assert.equal(f.root.textContent, 'Fantacy. Dream? Queue! I am here.');
   assert.equal(f.errors.length, 0);
+});
+test('first character accepts equivalent empty-text caret and native paragraph target', () => {
+  const f = fixture('<p cid="n0"></p>');
+  const p = f.root.firstChild, empty = f.doc.createTextNode(''); p.append(empty); f.caret(empty, 0);
+  const target = { collapsed: true, startContainer: p, startOffset: 0, endContainer: p, endOffset: 0 };
+  assert.equal(f.event('beforeinput', 'y', { targetRanges: [target] }).defaultPrevented, true);
+  f.type('esterday i dreamed about a panda. it jumped.');
+  assert.equal(f.root.textContent, 'Yesterday I dreamed about a panda. It jumped.');
+  assert.equal(f.errors.length, 0);
+});
+for (const offset of [0, 1]) test(`first character accepts an empty editor-root caret at offset ${offset}`, () => {
+  const f = fixture('<p cid="n0"></p>'), p = f.root.firstChild;
+  f.caret(f.root, offset);
+  const target = { collapsed: true, startContainer: p, startOffset: 0, endContainer: p, endOffset: 0 };
+  assert.equal(f.event('beforeinput', 'y', { targetRanges: [target] }).defaultPrevented, true);
+  assert.equal(f.root.textContent, 'Y');
+  assert.equal(f.errors.length, 0);
+});
+test('first character accepts an empty editor-root caret without target-range API', () => {
+  const f = fixture('<p cid="n0"></p>'); f.caret(f.root, 0);
+  f.type('yesterday i dreamed. it jumped.');
+  assert.equal(f.root.textContent, 'Yesterday I dreamed. It jumped.');
+  assert.equal(f.errors.length, 0);
+});
+test('equivalent caret handling still rejects a different insertion position or selected range', () => {
+  const f = fixture('<p>hello. </p>'), p = f.root.firstChild, text = p.firstChild;
+  f.caret(text);
+  for (const target of [
+    { collapsed: true, startContainer: text, startOffset: 0, endContainer: text, endOffset: 0 },
+    { collapsed: false, startContainer: text, startOffset: 0, endContainer: text, endOffset: 1 },
+  ]) assert.equal(f.event('beforeinput', 'i', { targetRanges: [target] }).defaultPrevented, false);
+  assert.equal(f.root.textContent, 'hello. ');
+  assert.equal(f.history.length, 0);
+});
+test('root-boundary handling does not enter math, code, nonempty or multiple blocks', () => {
+  for (const html of ['<p><code>i</code></p>', '<p><span class="md-inline-math"><script>i</script></span></p>', '<p>existing</p>', '<p></p><p></p>']) {
+    const f = fixture(html); f.caret(f.root, 0);
+    assert.equal(f.event('beforeinput', 'y').defaultPrevented, false);
+    assert.equal(f.history.length, 0);
+  }
 });
 test('compact dotted text is protected; spaced sentences work in the same paragraph without Enter', () => {
   const f = fixture(); f.type('fantacy.derea.queue.');

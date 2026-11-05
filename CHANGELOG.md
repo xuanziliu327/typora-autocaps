@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.3 — 2026-11-05 (prerelease)
+
+- Fixed a skipped first character when a pristine paragraph's caret is represented by the editor root or an empty text node while the native insertion target is the paragraph boundary.
+- Compare safe local insertion positions when DOM boundaries differ; retain strict rejection for different locations, selections, protected regions and nonempty/ambiguous root boundaries.
+- Added failing-before/fixed-after regression cases, including `yesterday i dreamed about a panda. it jumped.` without Enter. Native probes now vary caret and target boundaries instead of always forcing them to match.
+
 ## 0.1.2 — 2026-11-05 (prerelease)
 
 - Added pristine startup-paragraph coverage before any document reload. Confirmed immediate capitalization without Enter and documented why compact dotted text without spaces triggers domain/identifier protection.

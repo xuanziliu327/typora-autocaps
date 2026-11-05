@@ -1,5 +1,5 @@
 import { planInput } from './rules.js';
-import { blocked, readContext, replacementRange } from './context.js';
+import { blocked, readContext, readInputContext, replacementRange } from './context.js';
 
 export function attachAutoCaps({ root, editor, getSettings, onError = () => {} }) {
   const doc = root.ownerDocument;
@@ -20,13 +20,10 @@ export function attachAutoCaps({ root, editor, getSettings, onError = () => {} }
         || editor?.sourceView?.inSourceMode !== false || blocked(event.target, root)
         || /^(INPUT|TEXTAREA)$/u.test(doc.activeElement?.tagName ?? '')) { reset(); return; }
     const selection = doc.defaultView.getSelection();
-    const context = readContext(root, selection);
-    if (!context) { reset(); return; }
     // Target ranges may differ from the visual caret (spellcheck, replacement).
     const targets = event.getTargetRanges?.() ?? [];
-    if (targets.length && (targets.length !== 1 || !targets[0].collapsed
-        || targets[0].startContainer !== context.range.startContainer
-        || targets[0].startOffset !== context.range.startOffset)) { reset(); return; }
+    const context = readInputContext(root, selection, targets);
+    if (!context) { reset(); return; }
     if (block !== blockKey(context.block)) pending = null;
     const plan = planInput({ ...context, data: event.data, ...settings }, pending);
     if (!plan.edit) { pending = plan.pending; block = blockKey(context.block); return; }

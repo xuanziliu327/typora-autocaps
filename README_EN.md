@@ -4,7 +4,7 @@ Local, lightweight English sentence and pronoun **I** capitalization for Typora,
 
 [中文](README.md) · [Testing](docs/TESTING.md) · [Architecture](docs/ARCHITECTURE.md) · [Changelog](CHANGELOG.md)
 
-**0.1.2 is a prerelease. Extract the Windows ZIP, run its two root setup entries and restart Typora: AutoCaps starts enabled automatically. Automated and Typora 1.14.10 programmatic integration tests pass; physical keyboard, shortcut and IME acceptance remains pending.**
+**0.1.3 is a prerelease. Extract the Windows ZIP, run its two root setup entries and restart Typora: AutoCaps starts enabled automatically. Automated and Typora 1.14.10 programmatic integration tests pass; physical keyboard, shortcut and IME acceptance remains pending.**
 
 | Typed | Result |
 | --- | --- |
@@ -29,7 +29,7 @@ Typora has no official stable plugin API. The host framework has its own overhea
 
 ## Install
 
-Download **`typora-autocaps-0.1.2-windows.zip`** from this project's Releases and extract it completely. Choose the Windows installer ZIP; GitHub's Source code/source ZIP is for developers and requires a build.
+Download **`typora-autocaps-0.1.3-windows.zip`** from this project's Releases and extract it completely. Choose the Windows installer ZIP; GitHub's Source code/source ZIP is for developers and requires a build.
 
 The extracted root has two prominent entries:
 
@@ -51,6 +51,8 @@ For offline setup, download the official [2.10.86 framework ZIP](https://github.
 `plugin.zip` retains the standard standalone format for existing framework users and future marketplace distribution. Manual copying still requires manual activation; ordinary users should use the two root entries. AutoCaps is not yet listed in the marketplace.
 
 ## Controls
+
+**0.1.3 fixes a skipped initial capital:** if an earlier release required Enter before capitalization worked, quit Typora and run the new root entry 2. Reinstalling the framework is unnecessary.
 
 Click the status label, use **Ctrl+Alt+U** in the editor, or run **Typora AutoCaps: Toggle** in the framework command palette (F1). The status control supports Enter/Space.
 
@@ -88,9 +90,9 @@ pnpm run check
 pnpm run build
 ```
 
-On Windows: `powershell -NoProfile -ExecutionPolicy Bypass -File test/installer.integration.ps1`, then `pnpm run pack` and `powershell -NoProfile -ExecutionPolicy Bypass -File scripts/verify-package.ps1`. Outputs: `dist/plugin.zip`, `dist/typora-autocaps-0.1.2-windows.zip`, `dist/typora-autocaps-0.1.2-source.zip`, `dist/SHA256SUMS.txt`.
+On Windows: `powershell -NoProfile -ExecutionPolicy Bypass -File test/installer.integration.ps1`, then `pnpm run pack` and `powershell -NoProfile -ExecutionPolicy Bypass -File scripts/verify-package.ps1`. Outputs: `dist/plugin.zip`, `dist/typora-autocaps-0.1.3-windows.zip`, `dist/typora-autocaps-0.1.3-source.zip`, `dist/SHA256SUMS.txt`.
 
-The runtime bundle is **15,270 bytes (14.91 KiB)** with no runtime npm packages. `jsdom` is the only direct development dependency. A reproducible isolated editor integration probe is documented in the source archive's `tools/native-probe/README.md`. CI tests pushes/PRs and creates a **draft**, prerelease GitHub Release for version tags. See [RELEASING.md](docs/RELEASING.md) for repository identity and marketplace registration; no fictitious GitHub owner is embedded in the manifest.
+The runtime bundle is **16,637 bytes (16.25 KiB)** with no runtime npm packages. `jsdom` is the only direct development dependency. A reproducible isolated editor integration probe is documented in the source archive's `tools/native-probe/README.md`. CI tests pushes/PRs and creates a **draft**, prerelease GitHub Release for version tags. See [RELEASING.md](docs/RELEASING.md) for repository identity and marketplace registration; no fictitious GitHub owner is embedded in the manifest.
 
 ## Report a problem
 

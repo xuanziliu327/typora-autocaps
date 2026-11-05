@@ -31,7 +31,16 @@ export function blocked(node, root) {
 // prevents pathological spans from turning every keystroke into a large scan.
 export function readContext(root, selection) {
   if (!selection || selection.rangeCount !== 1 || !selection.isCollapsed) return null;
-  const range = selection.getRangeAt(0);
+  let range = selection.getRangeAt(0);
+  let rootBoundary = false;
+  // Chromium can leave the pristine caret on #write rather than inside its
+  // single empty paragraph. Normalize only that unambiguous empty-block case.
+  if (range.startContainer === root && root.childNodes.length === 1
+      && root.firstChild.nodeType === 1 && root.firstChild.matches(BLOCK)) {
+    range = range.cloneRange();
+    range.setStart(root.firstChild, 0); range.collapse(true);
+    rootBoundary = true;
+  }
   const anchor = range.startContainer;
   if (blocked(anchor, root)) return null;
   const block = elementOf(anchor).closest(BLOCK);
@@ -59,8 +68,28 @@ export function readContext(root, selection) {
     }
   }
   walk(block);
-  if (unsafe || caret === null || text.length > MAX_CONTEXT) return null;
+  if (unsafe || caret === null || text.length > MAX_CONTEXT
+      || (rootBoundary && text.replace(/\u200b/gu, '') !== '')) return null;
   return { block, left: text.slice(0, caret), right: text.slice(caret), caret, parts, range };
+}
+
+export function readInputContext(root, selection, targets = []) {
+  const visual = readContext(root, selection);
+  if (!visual || !targets.length) return visual;
+  if (targets.length !== 1 || !targets[0].collapsed) return null;
+  const target = targets[0];
+  if (target.startContainer === visual.range.startContainer && target.startOffset === visual.range.startOffset) return visual;
+  // A browser target at <p>,0 and a caret at its empty text node,0 denote
+  // the same insertion. Compare safe local positions, not node identity alone.
+  try {
+    const range = root.ownerDocument.createRange();
+    range.setStart(target.startContainer, target.startOffset); range.collapse(true);
+    const actual = readContext(root, { rangeCount: 1, isCollapsed: true, getRangeAt: () => range });
+    const normalized = text => text.replace(/\u200b/gu, '');
+    if (!actual || actual.block !== visual.block || normalized(actual.left) !== normalized(visual.left)
+        || normalized(actual.right) !== normalized(visual.right)) return null;
+    return actual;
+  } catch { return null; }
 }
 
 export function replacementRange(context, back) {

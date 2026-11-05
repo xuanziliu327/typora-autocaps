@@ -1,0 +1,83 @@
+{
+  "date": "2026-11-05",
+  "typoraVersion": "1.14.10",
+  "coreVersion": "2.10.86",
+  "fixedAutoCapsVersion": "0.1.3",
+  "method": "Controlled beforeinput events with intentionally different selection/target boundaries in an isolated real Typora renderer; native editor insertion and undo. No Enter before the first character; not a captured physical-keyboard event sequence.",
+  "before": [
+    {
+      "mode": "empty-text-vs-paragraph",
+      "firstCharacterHandled": false,
+      "actual": "yesterday I dreamed about a panda. It jumped.",
+      "pass": false,
+      "status": "AutoCaps: ON"
+    },
+    {
+      "mode": "root-before-paragraph",
+      "firstCharacterHandled": false,
+      "actual": "yesterday I dreamed about a panda. It jumped.",
+      "pass": false,
+      "status": "AutoCaps: ON"
+    }
+  ],
+  "beforeProbeLimitation": "IndexSizeError: Failed to execute 'getRangeAt' on 'Selection': 0 is not a valid index.",
+  "after": [
+    {
+      "mode": "empty-text-vs-paragraph",
+      "firstCharacterHandled": true,
+      "actual": "Yesterday I dreamed about a panda. It jumped.",
+      "pass": true,
+      "status": "AutoCaps: ON"
+    },
+    {
+      "mode": "root-before-paragraph",
+      "firstCharacterHandled": true,
+      "actual": "Yesterday I dreamed about a panda. It jumped.",
+      "pass": true,
+      "status": "AutoCaps: ON"
+    },
+    {
+      "mode": "root-after-paragraph",
+      "firstCharacterHandled": true,
+      "actual": "Yesterday I dreamed about a panda. It jumped.",
+      "pass": true,
+      "status": "AutoCaps: ON"
+    }
+  ],
+  "otherNativeCasesPass": true,
+  "appearance": {
+    "showRibbon": false,
+    "workspaceEnabled": false,
+    "ribbonElement": false,
+    "ribbonClass": false,
+    "workspaceElement": false,
+    "contentLeft": 0,
+    "pass": true,
+    "nativeSidebarHeaderVisible": true
+  },
+  "undo": {
+    "beforeUndo": "Hello. iPhone and I am fine?",
+    "afterUndo": "",
+    "afterRedo": "Hello. iPhone and I am fine?",
+    "undoCount": 7,
+    "pass": true
+  },
+  "math": {
+    "source": "f(x)=ax+b",
+    "pass": true
+  },
+  "blockMath": {
+    "actual": "$$\ni + f(x)=ax+b\n$$",
+    "hasProtectedDOM": true,
+    "pass": true
+  },
+  "code": {
+    "source": "const i = f(x)",
+    "pass": true
+  },
+  "sourceMode": {
+    "active": true,
+    "pass": true
+  },
+  "allFixedProbeCasesPass": true
+}

@@ -6,12 +6,12 @@
 
 环境：Windows，Node.js 24.22.1，Windows PowerShell 5.1；日期 2026-11-05。
 
-- `node --test`：**95 项通过，0 失败**（规则、jsdom 编辑适配、框架接口模拟、原安装器、两个新入口的安装逻辑、界面配置迁移、首段输入与命令行入口调用）。
+- `node --test`：**101 项通过，0 失败**（规则、jsdom 编辑适配、框架接口模拟、原安装器、两个新入口的安装逻辑、界面配置迁移、首字符光标边界与命令行入口调用）。
 - `node scripts/check.mjs`：JavaScript/PowerShell 语法与 manifest/package 版本一致性通过。
 - `test/installer.integration.ps1`：自定义含空格路径中的首次安装、升级、精确备份、回滚、卸载、保留偏好及显式清除偏好均通过。
 - `scripts/verify-package.ps1`：解压后的发布包根目录两个入口齐全，第二步安装成功、自动登记启用并恢复原生布局配置，安装文件哈希与包内载荷一致。
 - 安装脚本测试使用隔离的假框架目录，屏蔽测试作用域中的进程检测；后续编辑器测试另外使用程序副本和隔离配置。原有 Typora 安装和用户笔记未改动。
-- 最终 bundle `main.js`：**15,270 字节（14.91 KiB）**。ZIP 尺寸由打包命令输出；校验值见 `dist/SHA256SUMS.txt`。
+- 最终 bundle `main.js`：**16,637 字节（16.25 KiB）**。ZIP 尺寸由打包命令输出；校验值见 `dist/SHA256SUMS.txt`。
 
 自动化涉及：同行句号/问号/感叹号、双空格、引号括号、段落/列表开头、小数、缩写、I 及四种缩写、词内 i、品牌词、URL/email/标识符；原始与 DOM 数学/代码保护、混排；开关、局部编辑、选区、光标移动、Shift、DOM 替换、零宽符、IME 事件、原生剪贴板/删除/撤销重做事件透传、清理监听和 API 失败暂停。
 
@@ -54,9 +54,17 @@
 
 - 用户截图第一段为无空格的 `fantacy.derea.queue.`，第二段的句号后有空格。纯规则、DOM 适配与真实编辑器中都可复现同一差异：点分文本触发网址/标识符保护，暂时大写的 F 在输入后续 `.d` 时恢复为小写。
 - 在全新 Typora 副本配置里、任何 `reloadContent()` 之前，直接使用原始空白首段输入：第一个 f 立即显示 F；继续输入无空格文本后按保护规则恢复；接着在**同一段、不按 Enter**输入 ` fantasy. dream? queue! i am here.`，结果为 `fantacy.derea.queue. Fantasy. Dream? Queue! I am here.`。
-- 另外一个原始空白首段程序化测试直接输入 `fantacy. dream? queue! i am here.`，结果正确。未复现必须换行才能启用的条件，截图中的差异可由现有技术文本保护解释。
+- 另外一个原始空白首段程序化测试直接输入 `fantacy. dream? queue! i am here.`，结果正确。**这组探针把输入目标强制设置成与光标完全相同，未覆盖后续用户报告的首字符边界条件，不能据此排除首字母漏过的问题。** 无空格文本的解释仅适用于该文本形态。
 - 增加 3 项自动化回归（合计 95 项通过）；同时修正 jsdom 插入桩对空文本节点合并后的光标模拟，避免将测试桩的失效误报成原生编辑器问题。
-- 证据摘要：[FIRST_PARAGRAPH_TEST_RESULTS.json](FIRST_PARAGRAPH_TEST_RESULTS.json)。当前安装的运行文件与测试 bundle 的 SHA-256 相同。本次仅增加测试和说明，未修改输入规则或用户配置；仍属于程序化输入验证，不等于物理键盘验收。
+- 证据摘要：[FIRST_PARAGRAPH_TEST_RESULTS.json](FIRST_PARAGRAPH_TEST_RESULTS.json)。当时安装的运行文件与该轮测试 bundle 的 SHA-256 相同。该轮仅增加测试和说明，未修改输入规则或用户配置；仍属于程序化输入验证，不等于物理键盘验收。
+
+### 0.1.3 首字符光标边界修复
+
+- 用户继续提供 `yesterday I dreamed about a panda. It jumped...` 的截图，确认问题包含独立的首字符漏过，前一轮解释不完整。
+- 新增 6 项回归，其中旧代码下 4 项失败：空文本节点光标与段落输入目标等价、编辑器根节点的前/后边界，以及根节点光标且无 target-range API。修复后这 4 项与全部保护测试通过，合计 101 项。
+- `readContext` 只将单个已知空块的根节点光标归入该块；`readInputContext` 在节点表示不同时比较同一块的安全局部位置。不同插入位置、非折叠范围、公式、代码、已有正文及多个块仍拒绝接管。正常路径不增加整块读取。
+- 真实 Typora 副本中的对照探针详见下方证据；它显式构造不同的光标/目标边界。该验证覆盖了此前测试遗漏的条件，**尚不能断言已捕获用户物理键盘环境的具体事件序列**。此前 95 项通过与此次修复并不矛盾：此前缺少这些用例。
+- 旧版在空文本/段落边界及根节点前边界两个场景中，均得到 `yesterday I dreamed about a panda. It jumped.`，状态保持 ON；随后旧版探针的第三场景出现选择范围失效，记录于证据中。修复版三个场景均得到 `Yesterday I dreamed about a panda. It jumped.`，全部原生探针用例通过，公式、代码、撤销、源码模式及原生布局检查仍通过。证据：[INITIAL_CARET_FIX_RESULTS.json](INITIAL_CARET_FIX_RESULTS.json)。
 
 ## 真实键盘与 IME 人工验收清单（仍待验）
 
