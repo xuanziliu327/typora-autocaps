@@ -20,6 +20,9 @@ function fixture(html = '<p></p>') {
     const p = n.parentNode;
     let start = n, length = n.length;
     while (start.previousSibling?.nodeType === 3) { start = start.previousSibling; length += start.length; }
+    // normalize() removes empty text nodes. Keep the first nonempty node,
+    // including when Typora's pristine paragraph starts with an empty node.
+    while (!start.length && start.nextSibling?.nodeType === 3) start = start.nextSibling;
     p.normalize(); caret(start, length);
   }
   const editor = { sourceView: { inSourceMode: false }, insertText(text) { history.push(root.innerHTML); insert(text); } };
@@ -37,6 +40,24 @@ function fixture(html = '<p></p>') {
 test('adapter inline period/question/exclamation and tentative word corrections', () => {
   const f = fixture(); f.type('hello. how? yes! iPhone and i am inside.');
   assert.equal(f.root.textContent, 'Hello. How? Yes! iPhone and I am inside.');
+  assert.equal(f.errors.length, 0);
+});
+test('pristine first paragraph capitalizes immediately without a prior Enter or input event', () => {
+  const f = fixture('<p cid="n0" mdtype="paragraph" contenteditable="true" class="md-end-block md-p md-focus"></p>');
+  const empty = f.doc.createTextNode(''); f.root.firstChild.append(empty); f.caret(empty, 0);
+  f.type('f'); assert.equal(f.root.textContent, 'F');
+  f.type('antacy. dream? queue! i am here.');
+  assert.equal(f.errors.length, 0, String(f.errors[0]?.stack));
+  assert.equal(f.root.textContent, 'Fantacy. Dream? Queue! I am here.');
+  assert.equal(f.errors.length, 0);
+});
+test('compact dotted text is protected; spaced sentences work in the same paragraph without Enter', () => {
+  const f = fixture(); f.type('fantacy.derea.queue.');
+  assert.equal(f.root.textContent, 'fantacy.derea.queue.');
+  f.type(' fantasy. dream? queue! i am here.');
+  assert.equal(f.errors.length, 0, String(f.errors[0]?.stack));
+  assert.equal(f.root.textContent, 'fantacy.derea.queue. Fantasy. Dream? Queue! I am here.');
+  assert.equal(f.root.children.length, 1);
   assert.equal(f.errors.length, 0);
 });
 const protectedMarkup = [

@@ -69,6 +69,7 @@ Run `installer/Uninstall.cmd` or use the framework's Uninstall button. For compl
 
 ## Limitations
 
+- Sentence punctuation needs following whitespace; **the first paragraph does not require Enter first**. Compact dotted text such as `fantacy.derea.queue.` is conservatively treated as a possible domain/identifier and its tentative initial capital is restored. `fantacy. derea. queue.` becomes `Fantacy. Derea. Queue.` immediately.
 - Current character-by-character typing only. Existing text, paste/drop, selected-text replacement, spellcheck replacement and IME composition/commits are left alone, including English committed by an IME.
 - `i` initially appears as `I`; typing `n` next restores mid-sentence `in`, and `Phone` restores `iPhone`. Navigation, clicks, deletion, paste, blur, IME and format boundaries end this tracking. Continuing a word after such an interruption may retain its tentative capital.
 - Heuristics are not grammar analysis. An abbreviation at a real sentence end can suppress capitalization. Bare mathematical `i` in prose is indistinguishable from the pronoun: use math/code markup or disable that rule.

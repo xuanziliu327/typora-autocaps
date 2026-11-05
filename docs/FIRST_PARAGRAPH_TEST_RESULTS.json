@@ -1,0 +1,21 @@
+{
+  "date": "2026-11-05",
+  "platform": "Windows",
+  "typoraVersion": "1.14.10",
+  "coreVersion": "2.10.86",
+  "autoCapsVersion": "0.1.2",
+  "method": "Synthetic beforeinput + Chromium execCommand for unhandled characters; real Typora DOM/insertion/undo/framework/storage. No physical keyboard or IME acceptance.",
+  "initialStatus": "AutoCaps: ON",
+  "firstParagraph": {
+    "skipped": false,
+    "firstCharacter": "F",
+    "compact": "fantacy.derea.queue.",
+    "sameParagraph": "fantacy.derea.queue. Fantasy. Dream? Queue! I am here.",
+    "pass": true
+  },
+  "beforeAnyReloadContent": true,
+  "enteredNewline": false,
+  "allNativeProbeCasesPass": true,
+  "installedRuntimeMatchesTestedBundle": true,
+  "runtimeSha256": "b7c1ba63f7f00c473f2b950b01213ae8faeea2a9ef97e81a00159edd513ba323"
+}

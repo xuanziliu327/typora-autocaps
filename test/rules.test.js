@@ -44,6 +44,11 @@ const cases = [
 ];
 for (const [input, expected] of cases) test(`typing: ${JSON.stringify(input)}`, () => assert.equal(type(input), expected));
 test('first letter is immediate, no need for a trailing space', () => assert.equal(type('h'), 'H'));
+test('spaces rather than Enter distinguish sentences from compact domain-like tokens', () => {
+  assert.equal(type('fantacy.derea.queue.'), 'fantacy.derea.queue.');
+  assert.equal(type('fantacy. derea. queue.'), 'Fantacy. Derea. Queue.');
+  assert.equal(type('fantacy.derea.queue. fantasy. dream? queue!'), 'fantacy.derea.queue. Fantasy. Dream? Queue!');
+});
 test('Typora empty paragraph placeholder', () => assert.equal(type('hello', {}, '\u200b'), '\u200bHello'));
 test('pronoun tentative I reverses when the word continues', () => {
   assert.equal(type('i', {}, 'you and '), 'you and I');

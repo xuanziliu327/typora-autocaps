@@ -2,6 +2,7 @@
 
 ## 0.1.2 — 2026-11-05 (prerelease)
 
+- Added pristine startup-paragraph coverage before any document reload. Confirmed immediate capitalization without Enter and documented why compact dotted text without spaces triggers domain/identifier protection.
 - Fixed the installer enabling the host's default ribbon and multi-tab workspace. Fresh installations now retain Typora's native sidebar and editor layout through host settings.
 - Entry 2 also repairs installations made by the 0.1.1 two-entry installer, with a backup of the original host preferences. Unrelated settings and independently installed frameworks' appearance choices are preserved.
 - Added appearance migration, backup and malformed-configuration regression tests, and real Typora layout/input verification with the workspace disabled.

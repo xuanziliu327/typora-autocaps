@@ -37,6 +37,11 @@ checks that the ribbon and workspace DOM are absent, the native editor starts at
 the left edge and the original sidebar header remains available. The input and
 undo cases run with the workspace disabled.
 
+`firstParagraph` runs before any `reloadContent()` in a fresh startup document:
+it checks the very first character, compact dotted text and spaced sentences in
+one paragraph without Enter. It records `skipped=true` if a restarted fixture
+restored its previous nonempty document; use a new profile to exercise this case.
+
 Tests end with a disposable sample in the copied app. No private notes are loaded.
 Stop its recorded process before removing the fixture. Resource directories are
 junctions to the original install: never edit shared resources or recursively

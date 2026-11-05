@@ -99,6 +99,26 @@ export default class NativeProbe extends Plugin {
       const selection = window.getSelection();
       selection.removeAllRanges(); selection.addRange(range);
     }
+    // Exercise the actual pristine startup paragraph before reloadContent()
+    // creates a test paragraph. On restart the previous probe may be restored.
+    report.firstParagraph = { skipped: true, reason: 'Startup document is not empty; use a fresh disposable profile', pass: true };
+    if (!editor.getMarkdown().trim()) {
+      root.focus();
+      const selection = window.getSelection();
+      if (!selection.rangeCount || !root.contains(selection.anchorNode)) caretAtEnd(root.firstChild ?? root);
+      await type('f');
+      const firstCharacter = editor.getMarkdown().trim();
+      await type('antacy.derea.queue.');
+      const compact = editor.getMarkdown().trim();
+      await type(' fantasy. dream? queue! i am here.');
+      const sameParagraph = editor.getMarkdown().trim();
+      report.firstParagraph = {
+        skipped: false, firstCharacter, compact, sameParagraph,
+        pass: firstCharacter === 'F' && compact === 'fantacy.derea.queue.'
+          && sameParagraph === 'fantacy.derea.queue. Fantasy. Dream? Queue! I am here.',
+      };
+      this.save(report);
+    }
     for (const [input, expected] of [
       ['hello. how are you?', 'Hello. How are you?'],
       ['are you okay? i am fine! that is good.', 'Are you okay? I am fine! That is good.'],
@@ -161,7 +181,7 @@ export default class NativeProbe extends Plugin {
     report.persistedSettings = JSON.parse(this.fs.readFileSync(plugin.dataPath, 'utf8'));
     report.done = true;
     report.pass = report.cases.every(c => c.pass)
-      && ['appearance', 'undo', 'mixed', 'math', 'blockMath', 'code', 'sourceMode', 'disabled'].every(key => report[key].pass)
+      && ['firstParagraph', 'appearance', 'undo', 'mixed', 'math', 'blockMath', 'code', 'sourceMode', 'disabled'].every(key => report[key].pass)
       && report.persistedSettings.settings.enabled === false;
     this.save(report);
   }

@@ -6,7 +6,7 @@
 
 环境：Windows，Node.js 24.22.1，Windows PowerShell 5.1；日期 2026-11-05。
 
-- `node --test`：**92 项通过，0 失败**（规则、jsdom 编辑适配、框架接口模拟、原安装器、两个新入口的安装逻辑、界面配置迁移与命令行入口调用）。
+- `node --test`：**95 项通过，0 失败**（规则、jsdom 编辑适配、框架接口模拟、原安装器、两个新入口的安装逻辑、界面配置迁移、首段输入与命令行入口调用）。
 - `node scripts/check.mjs`：JavaScript/PowerShell 语法与 manifest/package 版本一致性通过。
 - `test/installer.integration.ps1`：自定义含空格路径中的首次安装、升级、精确备份、回滚、卸载、保留偏好及显式清除偏好均通过。
 - `scripts/verify-package.ps1`：解压后的发布包根目录两个入口齐全，第二步安装成功、自动登记启用并恢复原生布局配置，安装文件哈希与包内载荷一致。
@@ -49,6 +49,14 @@
 - 在上述布局下重跑全部原生编辑器探针：6 组输入、正文/数学混排、行内/块数学、代码、源码模式、OFF 与原生撤销重做全部通过；重启后布局仍保持，OFF 偏好正确恢复。
 - 证据摘要：[NATIVE_APPEARANCE_TEST_RESULTS.json](NATIVE_APPEARANCE_TEST_RESULTS.json)。这是实际渲染器/DOM 与程序化输入验证，未替代物理键盘或人工截图验收。
 - 应用户要求，在其退出 Typora 后，单独备份并修正当前框架的上述两项配置；未改主题、笔记或 AutoCaps 开关偏好。发布测试本身仍使用隔离副本。
+
+### 首段输入与无空格文本排查
+
+- 用户截图第一段为无空格的 `fantacy.derea.queue.`，第二段的句号后有空格。纯规则、DOM 适配与真实编辑器中都可复现同一差异：点分文本触发网址/标识符保护，暂时大写的 F 在输入后续 `.d` 时恢复为小写。
+- 在全新 Typora 副本配置里、任何 `reloadContent()` 之前，直接使用原始空白首段输入：第一个 f 立即显示 F；继续输入无空格文本后按保护规则恢复；接着在**同一段、不按 Enter**输入 ` fantasy. dream? queue! i am here.`，结果为 `fantacy.derea.queue. Fantasy. Dream? Queue! I am here.`。
+- 另外一个原始空白首段程序化测试直接输入 `fantacy. dream? queue! i am here.`，结果正确。未复现必须换行才能启用的条件，截图中的差异可由现有技术文本保护解释。
+- 增加 3 项自动化回归（合计 95 项通过）；同时修正 jsdom 插入桩对空文本节点合并后的光标模拟，避免将测试桩的失效误报成原生编辑器问题。
+- 证据摘要：[FIRST_PARAGRAPH_TEST_RESULTS.json](FIRST_PARAGRAPH_TEST_RESULTS.json)。当前安装的运行文件与测试 bundle 的 SHA-256 相同。本次仅增加测试和说明，未修改输入规则或用户配置；仍属于程序化输入验证，不等于物理键盘验收。
 
 ## 真实键盘与 IME 人工验收清单（仍待验）
 
