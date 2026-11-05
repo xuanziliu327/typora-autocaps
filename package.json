@@ -1,0 +1,17 @@
+{
+  "name": "typora-autocaps",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@11.25.0",
+  "description": "Lightweight, local English auto-capitalization for Typora",
+  "license": "MIT",
+  "scripts": {
+    "test": "node --test",
+    "check": "node scripts/check.mjs",
+    "build": "node scripts/build.mjs",
+    "pack": "node scripts/build.mjs && powershell -NoProfile -ExecutionPolicy Bypass -File scripts/pack.ps1"
+  },
+  "engines": { "node": ">=20" },
+  "devDependencies": { "jsdom": "26.1.0" }
+}

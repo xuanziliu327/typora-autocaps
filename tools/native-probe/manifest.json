@@ -1,0 +1,6 @@
+{
+  "id": "autocaps-native-probe",
+  "name": "AutoCaps Native Integration Probe (development only)",
+  "version": "0.0.0",
+  "minCoreVersion": "2.10.86"
+}
