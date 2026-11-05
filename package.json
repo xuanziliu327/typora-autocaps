@@ -6,6 +6,9 @@
   "packageManager": "pnpm@11.25.0",
   "description": "Lightweight, local English auto-capitalization for Typora",
   "license": "MIT",
+  "repository": { "type": "git", "url": "https://github.com/xuanziliu327/typora-autocaps.git" },
+  "homepage": "https://github.com/xuanziliu327/typora-autocaps#readme",
+  "bugs": { "url": "https://github.com/xuanziliu327/typora-autocaps/issues" },
   "scripts": {
     "test": "node --test",
     "check": "node scripts/check.mjs",

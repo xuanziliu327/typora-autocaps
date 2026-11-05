@@ -3,6 +3,8 @@
   "name": "Typora AutoCaps",
   "description": "Local English sentence and pronoun I capitalization with math and code protection.",
   "author": "Typora AutoCaps contributors",
+  "authorUrl": "https://github.com/xuanziliu327",
+  "repo": "xuanziliu327/typora-autocaps",
   "version": "0.1.3",
   "minAppVersion": "1.14.0",
   "minCoreVersion": "2.10.86",

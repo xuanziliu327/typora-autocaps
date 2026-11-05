@@ -1,8 +1,10 @@
-# Typora AutoCaps
+# 解决github中首字母自动大写问题
 
-轻量、本地运行的英文自动大写插件。为 Typora 普通正文补上句首大写与代词 **I**，保护公式和代码。
+**Typora AutoCaps**：轻量、本地运行的英文自动大写插件。为 Typora 普通正文补上句首大写与代词 **I**，保护公式和代码。
 
 [English](README_EN.md) · [测试与验收](docs/TESTING.md) · [架构与调研](docs/ARCHITECTURE.md) · [更新记录](CHANGELOG.md)
+
+[下载 Windows 安装包（0.1.3）](https://github.com/xuanziliu327/typora-autocaps/releases/download/0.1.3/typora-autocaps-0.1.3-windows.zip) · [GitHub Releases](https://github.com/xuanziliu327/typora-autocaps/releases) · [反馈问题](https://github.com/xuanziliu327/typora-autocaps/issues)
 
 **0.1.3 为预发布版本。解压 Windows 安装包后，依次运行根目录的两个入口，再彻底重启 Typora，即可默认启用。自动化与 Typora 1.14.10 程序化集成测试已通过；真实键盘、快捷键与 IME 候选窗口的人工验收仍待完成。**
 
@@ -40,7 +42,7 @@
 
 ## 安装
 
-从本项目 GitHub Releases 下载 **`typora-autocaps-0.1.3-windows.zip`** 并完整解压。普通用户请选择 Windows 安装包；`Source code` / `source.zip` 是开发源码，需要自行构建。
+从 [GitHub Releases](https://github.com/xuanziliu327/typora-autocaps/releases/tag/0.1.3) 下载 **`typora-autocaps-0.1.3-windows.zip`** 并完整解压。普通用户请选择 Windows 安装包；`Source code` / `source.zip` 是开发源码，需要自行构建。
 
 ```text
 解压后的根目录/
@@ -129,7 +131,7 @@ powershell -NoProfile -ExecutionPolicy Bypass -File scripts/verify-package.ps1
 
 可复现的真实编辑器集成测试说明位于源码包 `tools/native-probe/README.md`，准备脚本只创建隔离的程序副本和新配置目录。
 
-GitHub Actions 在推送与 PR 上测试，在推送版本标签（如 `0.1.3`）时生成 **Draft Release**，供维护者实机验收后发布。仓库所属 GitHub 账号未指定，因此 manifest 未填写虚构的 `repo` / `authorUrl`；发布及市场登记的最后步骤见 [RELEASING.md](docs/RELEASING.md)。
+GitHub Actions 在推送与 PR 上测试，在推送版本标签（如 `0.1.3`）时生成 **Draft Release**，供维护者验收后发布。项目仓库为 [xuanziliu327/typora-autocaps](https://github.com/xuanziliu327/typora-autocaps)，manifest 已填写真实仓库与作者链接；后续发布及市场登记见 [RELEASING.md](docs/RELEASING.md)。
 
 ## 反馈
 

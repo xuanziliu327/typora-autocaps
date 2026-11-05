@@ -4,6 +4,8 @@ Local, lightweight English sentence and pronoun **I** capitalization for Typora,
 
 [中文](README.md) · [Testing](docs/TESTING.md) · [Architecture](docs/ARCHITECTURE.md) · [Changelog](CHANGELOG.md)
 
+[Download Windows installer (0.1.3)](https://github.com/xuanziliu327/typora-autocaps/releases/download/0.1.3/typora-autocaps-0.1.3-windows.zip) · [Releases](https://github.com/xuanziliu327/typora-autocaps/releases) · [Report an issue](https://github.com/xuanziliu327/typora-autocaps/issues)
+
 **0.1.3 is a prerelease. Extract the Windows ZIP, run its two root setup entries and restart Typora: AutoCaps starts enabled automatically. Automated and Typora 1.14.10 programmatic integration tests pass; physical keyboard, shortcut and IME acceptance remains pending.**
 
 | Typed | Result |
@@ -92,7 +94,7 @@ pnpm run build
 
 On Windows: `powershell -NoProfile -ExecutionPolicy Bypass -File test/installer.integration.ps1`, then `pnpm run pack` and `powershell -NoProfile -ExecutionPolicy Bypass -File scripts/verify-package.ps1`. Outputs: `dist/plugin.zip`, `dist/typora-autocaps-0.1.3-windows.zip`, `dist/typora-autocaps-0.1.3-source.zip`, `dist/SHA256SUMS.txt`.
 
-The runtime bundle is **16,637 bytes (16.25 KiB)** with no runtime npm packages. `jsdom` is the only direct development dependency. A reproducible isolated editor integration probe is documented in the source archive's `tools/native-probe/README.md`. CI tests pushes/PRs and creates a **draft**, prerelease GitHub Release for version tags. See [RELEASING.md](docs/RELEASING.md) for repository identity and marketplace registration; no fictitious GitHub owner is embedded in the manifest.
+The runtime bundle is **16,637 bytes (16.25 KiB)** with no runtime npm packages. `jsdom` is the only direct development dependency. A reproducible isolated editor integration probe is documented in the source archive's `tools/native-probe/README.md`. CI tests pushes/PRs and creates a **draft**, prerelease GitHub Release for version tags. The repository is [xuanziliu327/typora-autocaps](https://github.com/xuanziliu327/typora-autocaps). See [RELEASING.md](docs/RELEASING.md) for publishing and marketplace registration.
 
 ## Report a problem
 
